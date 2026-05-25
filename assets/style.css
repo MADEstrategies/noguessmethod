@@ -177,6 +177,14 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
   transition:background 0.15s;
 }
 .mobile-nav-close:hover{background:rgba(255,255,255,.12)}
+}
+.mobile-nav nav{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  width:100%;
+}
 
 /* ── Layout ── */
 .wrap{
