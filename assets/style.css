@@ -189,7 +189,7 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
 /* ── Layout ── */
 .wrap{
   width:min(1160px, calc(100% - 32px));
-  margin:10 auto;
+  margin:0 auto;
 }
 
 /* ── Card ── */
