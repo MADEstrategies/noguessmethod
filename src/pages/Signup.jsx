@@ -14,32 +14,31 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (password !== confirm) { setStatus('Passwords do not match.'); return }
-    setLoading(true)
-    setStatus('')
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email, password,
-        options: {
-          data: { username },
-          emailRedirectTo: `${window.location.origin}/account`,
-        },
-      })
-      if (error) throw error
-      if (data.user) {
-        const { error: profileError } = await supabase.from('profiles').insert({ id: data.user.id, username, role: 'member' })
-        if (profileError) throw new Error('Account created but profile setup failed: ' + profileError.message)
-      }
-      setStatus('Account created. Check your email if confirmation is required.')
-    } catch (err) {
-      console.error('Signup error:', err)
-      setStatus(err.message || JSON.stringify(err) || 'Signup failed.')
-    } finally {
-      setLoading(false)
+  e.preventDefault()
+  if (password !== confirm) { setStatus('Passwords do not match.'); return }
+  setLoading(true)
+  setStatus('')
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: {
+        data: { username },
+        emailRedirectTo: `${window.location.origin}/account`,
+      },
+    })
+    if (error) throw error
+    if (data.user) {
+      const { error: profileError } = await supabase.from('profiles').insert({ id: data.user.id, username, role: 'member' })
+      if (profileError) throw new Error('Profile error: ' + profileError.message)
     }
+    setStatus('Account created. Check your email if confirmation is required.')
+  } catch (err) {
+    console.error('Signup error:', err)
+    setStatus('Error: ' + (err.message || JSON.stringify(err)))
+  } finally {
+    setLoading(false)
   }
-
+}
   return (
     <PageTransition>
       <Header />
