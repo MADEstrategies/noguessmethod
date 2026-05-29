@@ -192,6 +192,28 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
   gap:12px;
   width:100%;
 }
+.mobile-nav-links a,
+.mobile-nav-links button {
+  width: 100%;
+  max-width: 340px;
+  min-height: 54px;
+  font-size: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.045);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobile-nav-links a.primary {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
 
 /* ── Layout ── */
 .wrap{
