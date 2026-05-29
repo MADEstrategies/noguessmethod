@@ -162,7 +162,7 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
 .mobile-nav-close{
   position:absolute;
   top:20px;
-  right:20px;
+  left:20px;
   width:42px;
   height:42px;
   border:1px solid var(--line);
@@ -175,6 +175,7 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
   font-size:20px;
   color:#fff;
   transition:background 0.15s;
+  flex-shrink:0;
 }
 .mobile-nav-close:hover{background:rgba(255,255,255,.12)}
 }
