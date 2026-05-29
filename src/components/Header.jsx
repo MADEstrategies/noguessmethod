@@ -8,10 +8,8 @@ export default function Header() {
   const location = useLocation()
   const [open, setOpen] = useState(false)
 
-  // Close menu on route change
   useEffect(() => { setOpen(false) }, [location.pathname])
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -23,7 +21,7 @@ export default function Header() {
   }
 
   const navLinks = (
-    <> 
+    <>
       <Link to="/free">Free Board</Link>
       {!session && <Link to="/signup">Sign Up</Link>}
       {!session && <Link to="/login" className="primary">Login</Link>}
@@ -60,23 +58,17 @@ export default function Header() {
         <span />
         <span />
       </button>
-{/* Mobile nav overlay */}
-<div className={`mobile-nav${open ? ' open' : ''}`} aria-hidden={!open}>
-  <button
-    type="button"
-    className="mobile-nav-close"
-    onClick={() => setOpen(false)}
-    aria-label="Close menu"
-  >
-    ✕
-  </button>
-  <nav className="mobile-nav-links" onClick={() => setOpen(false)}>
-    {navLinks}
-  </nav>
-</div>
 
       {/* Mobile nav overlay */}
       <div className={`mobile-nav${open ? ' open' : ''}`} aria-hidden={!open}>
+        <button
+          type="button"
+          className="mobile-nav-close"
+          onClick={() => setOpen(false)}
+          aria-label="Close menu"
+        >
+          ✕
+        </button>
         <nav className="mobile-nav-links" onClick={() => setOpen(false)}>
           {navLinks}
         </nav>
@@ -84,6 +76,3 @@ export default function Header() {
     </header>
   )
 }
-
-
-
