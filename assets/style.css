@@ -163,8 +163,8 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
   position:absolute;
   top:20px;
   left:20px;
-  width:42px;
-  height:42px;
+  width:36px;
+  height:36px;
   border:1px solid var(--line);
   background:rgba(255,255,255,.06);
   border-radius:12px;
