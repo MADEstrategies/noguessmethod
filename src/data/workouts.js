@@ -117,7 +117,8 @@ import SCHEDULE from './schedule.json'
 export { SCHEDULE }
 
 export function getTodayIndex() {
-  return Math.floor(Date.now() / 86400000) % SCHEDULE.length
+  const dayOfMonth = new Date().getDate() - 1 // 0-indexed, so May 29 = index 28
+  return dayOfMonth % SCHEDULE.length
 }
 
 export function getWeekLabel(idx) {
