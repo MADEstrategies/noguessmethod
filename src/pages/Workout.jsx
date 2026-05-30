@@ -66,13 +66,14 @@ export default function Workout() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    if (!session) return
-    supabase.from('profiles').select('role,subscription').eq('id', session.user.id).single()
-      .then(({ data }) => {
-        setIsPremium(data?.subscription === 'premium' || data?.role === 'admin')
-        setLoaded(true)
-      })
-  }, [session])
+  if (!session) return
+  supabase.from('profiles').select('role,subscription').eq('id', session.user.id).single()
+    .then(({ data, error }) => {
+      console.log('Profile data:', data, 'Error:', error)
+      setIsPremium(data?.subscription === 'premium' || data?.role === 'admin')
+      setLoaded(true)
+    })
+}, [session])
 
   const idx = getTodayIndex()
   const workoutKey = SCHEDULE[idx]
