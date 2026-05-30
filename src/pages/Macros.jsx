@@ -417,3 +417,9 @@ export default function Macros() {
     </PageTransition>
   )
 }
+const { session } = useAuth()
+const navigate = useNavigate()
+
+useEffect(() => {
+  if (session === null) navigate('/login')
+}, [session])
