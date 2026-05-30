@@ -21,26 +21,26 @@ export default function Header() {
   }
 
   const navLinks = (
-    <>
-      <Link to="/free">Free Board</Link>
-      {!session && <Link to="/signup">Sign Up</Link>}
-      {!session && <Link to="/login" className="primary">Login</Link>}
-      {session && <Link to="/workout">Today's Workout</Link>}
-      {session && <Link to="/account" className="primary">Member Hub</Link>}
-      {session && (
-        <button type="button" className="logout-button" onClick={handleLogout}>
-          Log Out
-        </button>
-      )}
-    </>
-  )
+  <>
+    <Link to="/free">Free Board</Link>
+    {!session && <Link to="/signup">Sign Up</Link>}
+    {!session && <Link to="/login" className="primary">Login</Link>}
+    {session && <Link to="/workout">Today's Workout</Link>}
+    {session && <Link to="/macros">Macros</Link>}
+    {session && <Link to="/account" className="primary">Member Hub</Link>}
+    {session && (
+      <button type="button" className="logout-button" onClick={handleLogout}>
+        Log Out
+      </button>
+    )}
+  </>
+)
 
   return (
     <header className="site-header">
       <Link to="/" className="brand" aria-label="NoGuessMethod home">
         <img src="/assets/ngm-logo-square.jpeg" alt="NGM" className="logo-square" />
       </Link>
-
       {/* Desktop nav */}
       <nav className="nav">
         {navLinks}
