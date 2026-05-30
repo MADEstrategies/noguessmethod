@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import PaidRoute from './components/PaidRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -15,7 +16,6 @@ import Free from './pages/Free'
 import Investors from './pages/Investors'
 import NotFound from './pages/NotFound'
 import Checkout from './pages/Checkout'
-import PaidRoute from './components/PaidRoute'
 import Macros from './pages/Macros'
 
 function AnimatedRoutes() {
@@ -23,20 +23,20 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/free" element={<Free />} />
-        <Route path="/upgrade" element={<Upgrade />} />
+        <Route path="/"          element={<Home />} />
+        <Route path="/login"     element={<Login />} />
+        <Route path="/signup"    element={<Signup />} />
+        <Route path="/free"      element={<Free />} />
+        <Route path="/upgrade"   element={<Upgrade />} />
         <Route path="/investors" element={<Investors />} />
-        <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-        <Route path="/workout" element={<ProtectedRoute><Workout /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-<Route path="/success" element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-        <Route path="/macros" element={<Macros />} />
+        <Route path="/account"   element={<ProtectedRoute><Account /></ProtectedRoute>} />
+        <Route path="/workout"   element={<ProtectedRoute><Workout /></ProtectedRoute>} />
+        <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/macros"    element={<ProtectedRoute><Macros /></ProtectedRoute>} />
+        <Route path="/checkout"  element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/success"   element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
+        <Route path="/admin"     element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="*"          element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   )
