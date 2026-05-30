@@ -147,7 +147,8 @@ export default function Settings() {
             <button className="btn primary" type="button" onClick={savePrefs}>Save Reminder Settings</button>
             <StatusMsg {...prefsMsg} />
           </div>
-
+<ReminderSettings userId={session.user.id} />
+          
           <div className="settings-section">
             <div className="settings-label">Change Password</div>
             <div className="settings-row">
