@@ -113,7 +113,8 @@ export const WORKOUTS = {
   },
 }
 
-export { default as SCHEDULE } from './schedule.json'
+import SCHEDULE from './schedule.json'
+export { SCHEDULE }
 
 export function getTodayIndex() {
   return Math.floor(Date.now() / 86400000) % SCHEDULE.length
