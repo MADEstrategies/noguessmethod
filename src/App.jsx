@@ -16,6 +16,7 @@ import Investors from './pages/Investors'
 import NotFound from './pages/NotFound'
 import Checkout from './pages/Checkout'
 import PaidRoute from './components/PaidRoute'
+import Macros from './pages/Macros'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -35,6 +36,7 @@ function AnimatedRoutes() {
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/macros" element={<Macros />} />
       </Routes>
     </AnimatePresence>
   )
