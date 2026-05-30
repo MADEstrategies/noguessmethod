@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import PageTransition from '../components/PageTransition'
@@ -207,6 +209,13 @@ function ResultCard({ results, unit }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Macros() {
+  const { session } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (session === null) navigate('/login')
+  }, [session])
+
   const [unit, setUnit]         = useState('imperial')
   const [sex,  setSex]          = useState('male')
   const [age,  setAge]          = useState('')
