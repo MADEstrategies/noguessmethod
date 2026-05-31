@@ -5,15 +5,7 @@ import Footer from '../components/Footer'
 import PageTransition from '../components/PageTransition'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-
-const TIME_LABELS = {
-  early_morning: 'Early Morning (5–7am)',
-  morning: 'Morning (7–10am)',
-  midday: 'Midday (10am–1pm)',
-  afternoon: 'Afternoon (1–5pm)',
-  evening: 'Evening (5–8pm)',
-  night: 'Night (8pm+)',
-}
+import ReminderSettings from '../components/ReminderSettings'
 
 function StatusMsg({ msg, ok }) {
   if (!msg) return null
@@ -22,32 +14,29 @@ function StatusMsg({ msg, ok }) {
 
 export default function Settings() {
   const { session } = useAuth()
-  const [profile, setProfile] = useState(null)
-  const [username, setUsername] = useState('')
-  const [level, setLevel] = useState('')
-  const [goal, setGoal] = useState('')
-  const [phone, setPhone] = useState('')
-  const [time, setTime] = useState('')
-  const [pw, setPw] = useState('')
-  const [pwConfirm, setPwConfirm] = useState('')
+  const [profile, setProfile]       = useState(null)
+  const [username, setUsername]     = useState('')
+  const [level, setLevel]           = useState('')
+  const [goal, setGoal]             = useState('')
+  const [pw, setPw]                 = useState('')
+  const [pwConfirm, setPwConfirm]   = useState('')
   const [profileMsg, setProfileMsg] = useState({ msg: '', ok: null })
   const [trainingMsg, setTrainingMsg] = useState({ msg: '', ok: null })
-  const [prefsMsg, setPrefsMsg] = useState({ msg: '', ok: null })
-  const [pwMsg, setPwMsg] = useState({ msg: '', ok: null })
+  const [pwMsg, setPwMsg]           = useState({ msg: '', ok: null })
 
   useEffect(() => {
     if (!session) return
-    supabase.from('profiles')
-      .select('username,role,subscription,training_level,goal,preferred_time,phone_number')
-      .eq('id', session.user.id).single()
+    supabase
+      .from('profiles')
+      .select('username, role, subscription, training_level, goal')
+      .eq('id', session.user.id)
+      .single()
       .then(({ data }) => {
         if (!data) return
         setProfile(data)
         setUsername(data.username || '')
         setLevel(data.training_level || '')
         setGoal(data.goal || '')
-        setPhone(data.phone_number || '')
-        setTime(data.preferred_time || '')
       })
   }, [session])
 
@@ -62,14 +51,6 @@ export default function Settings() {
   const saveTraining = async () => {
     const { error } = await supabase.from('profiles').update({ training_level: level, goal }).eq('id', session.user.id)
     setTrainingMsg(error ? { msg: error.message, ok: false } : { msg: 'Training saved.', ok: true })
-  }
-
-  const savePrefs = async () => {
-    if (phone && !/^\+[1-9]\d{6,14}$/.test(phone)) {
-      setPrefsMsg({ msg: 'Phone must be in international format: +1 212 555 0123', ok: false }); return
-    }
-    const { error } = await supabase.from('profiles').update({ preferred_time: time, phone_number: phone || null }).eq('id', session.user.id)
-    setPrefsMsg(error ? { msg: error.message, ok: false } : { msg: 'Reminder settings saved.', ok: true })
   }
 
   const savePassword = async () => {
@@ -101,6 +82,7 @@ export default function Settings() {
           <img className="auth-logo" src="/assets/ngm-logo-square.jpeg" alt="NGM" />
           <h2>Your Profile.</h2>
 
+          {/* Profile */}
           <div className="settings-section">
             <div className="settings-label">Profile</div>
             <div className="settings-row">
@@ -110,6 +92,7 @@ export default function Settings() {
             <StatusMsg {...profileMsg} />
           </div>
 
+          {/* Training */}
           <div className="settings-section">
             <div className="settings-label">Training</div>
             <div className="settings-row">
@@ -127,28 +110,10 @@ export default function Settings() {
             <StatusMsg {...trainingMsg} />
           </div>
 
-          <div className="settings-section">
-            <div className="settings-label">Reminders</div>
-            <div className="settings-row">
-              <label>Phone Number for SMS<input value={phone} onChange={e => setPhone(e.target.value)} type="tel" placeholder="+1 212 555 0123" /></label>
-              <label style={{ fontSize: 13, fontWeight: 400, color: 'var(--muted)' }}>International format required (e.g. +1 for US). Leave blank to opt out of SMS.</label>
-              <label>Preferred Workout Time
-                <select value={time} onChange={e => setTime(e.target.value)}>
-                  <option value="">No preference — skip SMS</option>
-                  <option value="early_morning">Early Morning (5–7am ET)</option>
-                  <option value="morning">Morning (7–10am ET)</option>
-                  <option value="midday">Midday (10am–1pm ET)</option>
-                  <option value="afternoon">Afternoon (1–5pm ET)</option>
-                  <option value="evening">Evening (5–8pm ET)</option>
-                  <option value="night">Night (8pm+ ET)</option>
-                </select>
-              </label>
-            </div>
-            <button className="btn primary" type="button" onClick={savePrefs}>Save Reminder Settings</button>
-            <StatusMsg {...prefsMsg} />
-          </div>
-<ReminderSettings userId={session.user.id} />
-          
+          {/* Reminders */}
+          <ReminderSettings userId={session.user.id} />
+
+          {/* Password */}
           <div className="settings-section">
             <div className="settings-label">Change Password</div>
             <div className="settings-row">
@@ -160,6 +125,7 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Summary card */}
         <div className="card summary-card">
           <div className="eyebrow">Account</div>
           <h2 style={{ fontSize: 'clamp(28px,4vw,42px)' }}>Quick View.</h2>
@@ -170,8 +136,6 @@ export default function Settings() {
             <div className="summary-row"><b>Subscription</b><span>{isPremium ? 'Premium' : 'Free'}</span></div>
             <div className="summary-row"><b>Training Level</b><span>{level || '—'}</span></div>
             <div className="summary-row"><b>Goal</b><span>{goal || '—'}</span></div>
-            <div className="summary-row"><b>Workout Time</b><span>{time ? TIME_LABELS[time] : '—'}</span></div>
-            <div className="summary-row"><b>SMS</b><span>{phone || 'Not set'}</span></div>
           </div>
           <div className="actions" style={{ marginTop: 22, flexDirection: 'column' }}>
             <Link className="btn primary" to="/workout">Today's Workout</Link>
