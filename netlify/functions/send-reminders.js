@@ -211,7 +211,13 @@ exports.handler = async () => {
     // Convert user's stored reminder_time to UTC and check if it matches now
    const reminderTime = (user.reminder_time ?? '').slice(0, 5);
 const userUTC = localTimeToUTC(reminderTime, user.reminder_timezone ?? 'America/New_York');
-if (userUTC !== currentUTC) return;
+const reminderTime = (user.reminder_time ?? '').slice(0, 5)
+const userUTC = localTimeToUTC(reminderTime, user.reminder_timezone ?? 'America/New_York')
+const [uh, um] = userUTC.split(':').map(Number)
+const [ch, cm] = currentUTC.split(':').map(Number)
+const userMins = uh * 60 + um
+const currMins = ch * 60 + cm
+if (Math.abs(userMins - currMins) > 7) return;
 
     // Get today's workout for this user
     const idx     = getTodayIndex(user.joined_at);
