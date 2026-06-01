@@ -17,7 +17,7 @@ export default function Account() {
       .then(({ data }) => setProfile(data))
   }, [session])
 
-  const isPremium = profile?.subscription === 'premium' || profile?.role === 'admin'
+  const isPremium = profile?.subscription === 'premium' || profile?.subscription === 'canceling' || profile?.role === 'admin'
 
   const openPortal = async () => {
     setPortalStatus('')
@@ -72,6 +72,7 @@ export default function Account() {
           <div className="actions">
             <Link className="btn primary" to="/workout">Today's Workout</Link>
             {!isPremium && <Link className="btn" to="/upgrade">Upgrade — $19.99/mo</Link>}
+            {isPremium && <Link className="btn" to="/cancel">Subscription</Link>}
             <Link className="btn" to="/settings">Settings</Link>
             <Link className="btn" to="/free">Free Board</Link>
             <button type="button" className="logout-button" onClick={async () => { await signOut(); window.location.href = '/' }}>Log Out</button>
