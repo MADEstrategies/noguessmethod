@@ -1221,6 +1221,100 @@ option{background:#111;color:#fff}
 }
 .fade-in.visible{opacity:1;transform:none}
 
+/* ── Cancel subscription page ── */
+.cancel-wrap{
+  width:min(640px, calc(100% - 32px));
+  margin:34px auto 82px;
+  display:grid;
+  gap:22px;
+}
+.cancel-card{padding:36px}
+.cancel-reasons{
+  display:grid;
+  gap:8px;
+  margin-top:22px;
+}
+.cancel-reason-btn{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  border-radius:14px;
+  padding:14px 16px;
+  font-size:14px;
+  font-weight:600;
+  text-align:left;
+  min-height:0;
+  transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.cancel-reason-btn:hover:not(:disabled){
+  background:rgba(255,255,255,.07);
+  transform:none;
+}
+.cancel-reason-btn.active{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.28);
+  color:#fff;
+}
+.cancel-reason-check{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+  flex-shrink:0;
+  transition:background 0.15s ease, border-color 0.15s ease;
+}
+.cancel-reason-btn.active .cancel-reason-check{
+  background:#fff;
+  border-color:#fff;
+  color:#000;
+}
+.cancel-nudge{
+  margin-top:16px;
+  padding:14px 16px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.cancel-nudge strong{color:#fff}
+.cancel-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:28px;
+  flex-direction:row-reverse;
+}
+.cancel-confirm-details{
+  margin-top:22px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(0,0,0,.18);
+}
+.cancel-confirm-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  font-size:14px;
+  color:var(--muted);
+}
+.cancel-confirm-row:last-child{border-bottom:0}
+.cancel-confirm-row strong{color:#fff}
+
 /* ── Loading pulse ── */
 @keyframes pulse{
   0%,100%{opacity:.3}
