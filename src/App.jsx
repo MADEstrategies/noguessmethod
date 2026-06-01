@@ -17,6 +17,7 @@ import Investors from './pages/Investors'
 import NotFound from './pages/NotFound'
 import Checkout from './pages/Checkout'
 import Macros from './pages/Macros'
+import Cancel from './pages/Cancel'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -34,6 +35,7 @@ function AnimatedRoutes() {
         <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/macros"    element={<ProtectedRoute><Macros /></ProtectedRoute>} />
         <Route path="/checkout"  element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/cancel" element={<ProtectedRoute><Cancel /></ProtectedRoute>} />
         <Route path="/success"   element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
         <Route path="/admin"     element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="*"          element={<NotFound />} />
