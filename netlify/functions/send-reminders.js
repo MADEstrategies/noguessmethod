@@ -209,8 +209,9 @@ exports.handler = async () => {
 
   await Promise.allSettled(users.map(async (user) => {
     // Convert user's stored reminder_time to UTC and check if it matches now
-    const userUTC = localTimeToUTC(user.reminder_time, user.reminder_timezone ?? 'America/New_York');
-    if (userUTC !== currentUTC) return;
+   const reminderTime = (user.reminder_time ?? '').slice(0, 5);
+const userUTC = localTimeToUTC(reminderTime, user.reminder_timezone ?? 'America/New_York');
+if (userUTC !== currentUTC) return;
 
     // Get today's workout for this user
     const idx     = getTodayIndex(user.joined_at);
