@@ -7,6 +7,16 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { WORKOUTS, SCHEDULE, getTodayIndex, getWeekLabel } from '../data/workouts'
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function getLocalDateString() {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
 // ─── Log Workout Modal ────────────────────────────────────────────────────────
 
 function SetRow({ setNumber, weight, reps, onChange }) {
@@ -265,16 +275,16 @@ export default function Workout() {
       .single()
       .then(({ data, error }) => {
         if (error) console.error('Profile fetch error:', error)
-        setIsPremium(data?.subscription === 'premium' || data?.role === 'admin')
+        setIsPremium(data?.subscription === 'premium' || data?.subscription === 'canceling' || data?.role === 'admin')
         setJoinedAt(data?.joined_at ?? null)
         setLoaded(true)
       })
   }, [session])
 
-  // Check if already logged today
+  // Check if already logged today (using local date to avoid UTC midnight mismatch)
   useEffect(() => {
     if (!session) return
-    const today = new Date().toISOString().split('T')[0]
+    const today = getLocalDateString()
     supabase
       .from('workout_logs')
       .select('id')
@@ -293,8 +303,8 @@ export default function Workout() {
   // Called after a workout is saved — check for new PRs
   async function handleLogged() {
     setLoggedToday(true)
-    // Fetch PRs set today
-    const today = new Date().toISOString().split('T')[0]
+    // Fetch PRs set today (local date)
+    const today = getLocalDateString()
     const { data } = await supabase
       .from('personal_records')
       .select('exercise_name, weight, reps')
