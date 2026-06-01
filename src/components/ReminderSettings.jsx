@@ -16,14 +16,13 @@ const TIMEZONES = [
   { label: 'Sydney (AEST)',    value: 'Australia/Sydney' },
 ]
 
-// Generate time slots every 15 minutes
 function generateTimeSlots() {
   const slots = []
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += 15) {
-      const hh     = String(h).padStart(2, '0')
-      const mm     = String(m).padStart(2, '0')
-      const value  = `${hh}:${mm}`
+      const hh    = String(h).padStart(2, '0')
+      const mm    = String(m).padStart(2, '0')
+      const value = `${hh}:${mm}`
       const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h
       const ampm   = h < 12 ? 'AM' : 'PM'
       const label  = `${hour12}:${mm} ${ampm}`
@@ -35,8 +34,7 @@ function generateTimeSlots() {
 
 const TIME_SLOTS = generateTimeSlots()
 
-// Convert local HH:MM + timezone → UTC HH:MM for storage
-function localTimeToUTC(timeStr: string, timezone: string): string {
+function localTimeToUTC(timeStr, timezone) {
   const [hh, mm] = timeStr.split(':').map(Number)
   const now = new Date()
   const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0)
@@ -47,8 +45,7 @@ function localTimeToUTC(timeStr: string, timezone: string): string {
   return `${String(utc.getHours()).padStart(2,'0')}:${String(utc.getMinutes()).padStart(2,'0')}`
 }
 
-// Convert stored UTC HH:MM → local HH:MM for display
-function utcTimeToLocal(utcStr: string, timezone: string): string {
+function utcTimeToLocal(utcStr, timezone) {
   if (!utcStr) return '07:00'
   const [hh, mm] = utcStr.split(':').map(Number)
   const now = new Date()
@@ -56,7 +53,6 @@ function utcTimeToLocal(utcStr: string, timezone: string): string {
   const local   = utcDate.toLocaleTimeString('en-US', {
     timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false,
   })
-  // Snap to nearest 15-min slot
   const [lh, lm] = local.slice(0, 5).split(':').map(Number)
   const snapped  = Math.round(lm / 15) * 15
   const finalM   = snapped === 60 ? 0 : snapped
@@ -64,25 +60,26 @@ function utcTimeToLocal(utcStr: string, timezone: string): string {
   return `${String(finalH).padStart(2,'0')}:${String(finalM).padStart(2,'0')}`
 }
 
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Toggle({ on, onToggle }) {
   return (
     <button
       className={`toggle-btn ${on ? 'on' : ''}`}
       onClick={onToggle}
       aria-pressed={on}
+      type="button"
     >
       <span className="toggle-knob" />
     </button>
   )
 }
 
-export default function ReminderSettings({ userId }: { userId: string }) {
+export default function ReminderSettings({ userId }) {
   const [emailEnabled, setEmailEnabled] = useState(false)
   const [smsEnabled,   setSmsEnabled]   = useState(false)
   const [time,         setTime]         = useState('07:00')
   const [timezone,     setTimezone]     = useState('America/New_York')
   const [phone,        setPhone]        = useState('')
-  const [status,       setStatus]       = useState<'idle'|'saving'|'saved'|'error'>('idle')
+  const [status,       setStatus]       = useState('idle') // idle | saving | saved | error
   const [loaded,       setLoaded]       = useState(false)
 
   // Auto-detect timezone
@@ -94,6 +91,7 @@ export default function ReminderSettings({ userId }: { userId: string }) {
 
   // Load existing settings
   useEffect(() => {
+    if (!userId) return
     supabase
       .from('profiles')
       .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number')
@@ -167,7 +165,7 @@ export default function ReminderSettings({ userId }: { userId: string }) {
         <Toggle on={smsEnabled} onToggle={() => setSmsEnabled(s => !s)} />
       </div>
 
-      {/* Phone number — only shown when SMS enabled */}
+      {/* Phone number */}
       {smsEnabled && (
         <div style={{ marginTop: 14 }}>
           <label>
@@ -186,9 +184,9 @@ export default function ReminderSettings({ userId }: { userId: string }) {
         </div>
       )}
 
-      {/* Time + timezone — only shown when at least one is enabled */}
+      {/* Time + timezone */}
       {anyEnabled && (
-        <div className="reminder-fields" style={{ marginTop: 14 }}>
+        <div style={{ marginTop: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label>
               <span className="settings-label">Reminder time</span>
@@ -211,17 +209,18 @@ export default function ReminderSettings({ userId }: { userId: string }) {
       )}
 
       {/* Save */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16 }}>
         <button
           className="btn primary"
+          type="button"
           onClick={handleSave}
           disabled={status === 'saving'}
           style={{ minWidth: 120 }}
         >
-          {status === 'saving' ? 'Saving...' : 'Save'}
+          {status === 'saving' ? 'Saving...' : 'Save Reminders'}
         </button>
         {status === 'saved' && <span className="settings-status ok">✓ Saved</span>}
-        {status === 'error' && <span className="settings-status err">Something went wrong</span>}
+        {status === 'error'  && <span className="settings-status err">Something went wrong</span>}
       </div>
     </div>
   )
