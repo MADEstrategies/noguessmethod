@@ -27,37 +27,46 @@ exports.handler = async (event) => {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
+  // ── New subscription via checkout ──────────────────────────────────────────
   if (stripeEvent.type === 'checkout.session.completed') {
     const session = stripeEvent.data.object;
-    const userId = session.metadata?.userId;
+    const userId  = session.metadata?.userId;
     if (userId) {
       await sb.from('profiles').update({
-        subscription: 'premium',
-        stripe_customer_id: session.customer,
+        subscription:           'premium',
+        stripe_customer_id:     session.customer,
         stripe_subscription_id: session.subscription,
       }).eq('id', userId);
     }
   }
 
+  // ── Subscription deleted or paused → revert to free ───────────────────────
   if (
     stripeEvent.type === 'customer.subscription.deleted' ||
     stripeEvent.type === 'customer.subscription.paused'
   ) {
-    const sub = stripeEvent.data.object;
+    const sub    = stripeEvent.data.object;
     const userId = sub.metadata?.userId;
     if (userId) {
       await sb.from('profiles').update({ subscription: 'free' }).eq('id', userId);
     }
   }
 
+  // ── Subscription updated ───────────────────────────────────────────────────
   if (stripeEvent.type === 'customer.subscription.updated') {
-    const sub = stripeEvent.data.object;
+    const sub    = stripeEvent.data.object;
     const userId = sub.metadata?.userId;
-    if (userId && sub.status === 'active') {
-      await sb.from('profiles').update({ subscription: 'premium' }).eq('id', userId);
-    }
-    if (userId && (sub.status === 'canceled' || sub.status === 'unpaid')) {
-      await sb.from('profiles').update({ subscription: 'free' }).eq('id', userId);
+
+    if (userId) {
+      if (sub.cancel_at_period_end) {
+        // User cancelled but still has access until period ends
+        await sb.from('profiles').update({ subscription: 'canceling' }).eq('id', userId);
+      } else if (sub.status === 'active') {
+        // Active and not canceling — full premium (covers reactivations too)
+        await sb.from('profiles').update({ subscription: 'premium' }).eq('id', userId);
+      } else if (sub.status === 'canceled' || sub.status === 'unpaid') {
+        await sb.from('profiles').update({ subscription: 'free' }).eq('id', userId);
+      }
     }
   }
 
