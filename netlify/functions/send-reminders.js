@@ -50,53 +50,68 @@ function buildEmailHTML(username, label, focus, siteUrl) {
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Today's Program — NGM</title>
 </head>
-<body style="margin:0;padding:0;background:#050505;font-family:Inter,Arial,Helvetica,sans-serif;color:#ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#050505;padding:40px 0;">
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Inter,Arial,Helvetica,sans-serif;color:#0a0a0a;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 16px;">
     <tr>
       <td align="center">
         <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+
+          <!-- Logo -->
           <tr>
-            <td style="padding:0 0 32px;">
+            <td style="padding:0 0 24px;">
               <table cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="background:#000;border:1px solid rgba(255,255,255,.14);border-radius:14px;width:46px;height:46px;text-align:center;vertical-align:middle;">
-                    <span style="font-size:13px;font-weight:900;letter-spacing:.08em;color:#fff;">NGM</span>
+                  <td style="background:#0a0a0a;border-radius:14px;width:46px;height:46px;text-align:center;vertical-align:middle;">
+                    <span style="font-size:13px;font-weight:900;letter-spacing:.08em;color:#ffffff;line-height:46px;display:block;">NGM</span>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
+
+          <!-- Main card -->
           <tr>
-            <td style="background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.14);border-radius:28px;padding:36px;">
-              <p style="margin:0 0 20px;font-size:12px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.78);">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;margin-right:10px;vertical-align:middle;"></span>
+            <td style="background:#ffffff;border:1px solid #e5e5e5;border-radius:24px;padding:36px;">
+
+              <p style="margin:0 0 20px;font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#888888;">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#0a0a0a;margin-right:10px;vertical-align:middle;"></span>
                 Today's Program
               </p>
-              <h1 style="margin:0 0 6px;font-size:42px;font-weight:900;letter-spacing:-.065em;line-height:.92;text-transform:uppercase;color:#ffffff;">
+
+              <h1 style="margin:0;font-size:38px;font-weight:900;letter-spacing:-.04em;line-height:.96;text-transform:uppercase;color:#0a0a0a;">
                 ${label.toUpperCase()}
               </h1>
-              <p style="margin:16px 0 0;display:inline-block;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);border-radius:999px;padding:7px 15px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;">
+
+              <div style="margin:18px 0 0;display:inline-block;border:1px solid #e5e5e5;background:#f4f4f4;border-radius:999px;padding:7px 15px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555555;">
                 ${focus}
-              </p>
-              <hr style="border:0;border-top:1px solid rgba(255,255,255,.14);margin:28px 0;"/>
-              <p style="margin:0 0 28px;font-size:16px;color:rgba(255,255,255,.68);line-height:1.6;">
+              </div>
+
+              <hr style="border:0;border-top:1px solid #eeeeee;margin:28px 0;"/>
+
+              <p style="margin:0 0 28px;font-size:16px;color:#555555;line-height:1.6;">
                 Hey ${username} — your program is ready. Stop guessing, start progressing.
               </p>
-              <a href="${siteUrl}/workout" style="display:inline-block;background:#ffffff;color:#000000;font-size:14px;font-weight:700;padding:14px 28px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
+
+              <a href="${siteUrl}/workout"
+                 style="display:inline-block;background:#0a0a0a;color:#ffffff;font-size:14px;font-weight:700;padding:14px 28px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
                 View Today's Workout →
               </a>
+
             </td>
           </tr>
+
+          <!-- Footer -->
           <tr>
-            <td style="padding:28px 0 0;text-align:center;">
-              <p style="margin:0;font-size:13px;color:rgba(255,255,255,.35);line-height:1.6;">
-                You're receiving this because you enabled email reminders.<br/>
-                <a href="${siteUrl}/settings" style="color:rgba(255,255,255,.45);text-decoration:underline;">
+            <td style="padding:24px 0 0;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+                You're receiving this because you enabled workout reminders.<br/>
+                <a href="${siteUrl}/settings" style="color:#888888;text-decoration:underline;">
                   Manage reminder settings
                 </a>
               </p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
