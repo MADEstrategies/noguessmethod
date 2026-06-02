@@ -60,6 +60,20 @@ function utcTimeToLocal(utcStr, timezone) {
   return `${String(finalH).padStart(2,'0')}:${String(finalM).padStart(2,'0')}`
 }
 
+// Mirror of the server-side normalizer in the verification functions.
+function normalizePhoneClient(raw) {
+  if (!raw) return null
+  const p = String(raw).trim().replace(/[\s\-().]/g, '')
+  if (p.startsWith('+')) {
+    const digits = p.slice(1).replace(/\D/g, '')
+    return digits.length >= 8 && digits.length <= 15 ? `+${digits}` : null
+  }
+  const digits = p.replace(/\D/g, '')
+  if (digits.length === 10) return `+1${digits}`
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`
+  return null
+}
+
 function Toggle({ on, onToggle }) {
   return (
     <button
@@ -79,8 +93,16 @@ export default function ReminderSettings({ userId }) {
   const [time,         setTime]         = useState('07:00')
   const [timezone,     setTimezone]     = useState('America/New_York')
   const [phone,        setPhone]        = useState('')
+  const [verifiedPhone, setVerifiedPhone] = useState(null)
+  const [code,         setCode]         = useState('')
+  const [verifyStep,   setVerifyStep]   = useState('idle') // idle | code-sent
+  const [verifyState,  setVerifyState]  = useState('idle') // idle | sending | checking
+  const [verifyMsg,    setVerifyMsg]    = useState({ msg: '', ok: null })
   const [status,       setStatus]       = useState('idle') // idle | saving | saved | error
   const [loaded,       setLoaded]       = useState(false)
+
+  const normalizedPhone = normalizePhoneClient(phone)
+  const phoneVerified   = !!verifiedPhone && normalizedPhone === verifiedPhone
 
   // Auto-detect timezone
   useEffect(() => {
@@ -94,7 +116,7 @@ export default function ReminderSettings({ userId }) {
     if (!userId) return
     supabase
       .from('profiles')
-      .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number')
+      .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number, phone_verified')
       .eq('id', userId)
       .single()
       .then(({ data }) => {
@@ -102,6 +124,7 @@ export default function ReminderSettings({ userId }) {
         setEmailEnabled(data.reminder_email_enabled ?? false)
         setSmsEnabled(data.reminder_sms_enabled ?? false)
         setPhone(data.phone_number ?? '')
+        setVerifiedPhone(data.phone_verified ? (data.phone_number ?? null) : null)
         const tz = data.reminder_timezone ?? 'America/New_York'
         setTimezone(tz)
         if (data.reminder_time) setTime(utcTimeToLocal(data.reminder_time, tz))
@@ -109,7 +132,79 @@ export default function ReminderSettings({ userId }) {
       })
   }, [userId])
 
+  async function authToken() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
+  function onPhoneChange(value) {
+    setPhone(value)
+    setVerifyStep('idle')
+    setCode('')
+    setVerifyMsg({ msg: '', ok: null })
+  }
+
+  async function handleSendCode() {
+    if (!normalizedPhone) {
+      setVerifyMsg({ msg: 'Enter a valid phone number, including country code (e.g. +1 212 555 1234).', ok: false })
+      return
+    }
+    setVerifyState('sending')
+    setVerifyMsg({ msg: '', ok: null })
+    try {
+      const token = await authToken()
+      const res = await fetch('/api/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ phone: phone.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Could not send code')
+      setVerifyStep('code-sent')
+      setCode('')
+      setVerifyMsg({ msg: `Code sent to ${data.phone}. Enter it below.`, ok: true })
+    } catch (err) {
+      setVerifyMsg({ msg: err.message, ok: false })
+    } finally {
+      setVerifyState('idle')
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (!code.trim()) {
+      setVerifyMsg({ msg: 'Enter the code from the text message.', ok: false })
+      return
+    }
+    setVerifyState('checking')
+    setVerifyMsg({ msg: '', ok: null })
+    try {
+      const token = await authToken()
+      const res = await fetch('/api/check-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ phone: phone.trim(), code: code.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Could not verify code')
+      setVerifiedPhone(data.phone)
+      setPhone(data.phone)
+      setVerifyStep('idle')
+      setCode('')
+      setVerifyMsg({ msg: 'Phone number verified.', ok: true })
+    } catch (err) {
+      setVerifyMsg({ msg: err.message, ok: false })
+    } finally {
+      setVerifyState('idle')
+    }
+  }
+
   async function handleSave() {
+    if (smsEnabled && !phoneVerified) {
+      setVerifyMsg({ msg: 'Verify your phone number before enabling SMS reminders.', ok: false })
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 3000)
+      return
+    }
     setStatus('saving')
     const utcTime = localTimeToUTC(time, timezone)
     const { error } = await supabase
@@ -165,7 +260,7 @@ export default function ReminderSettings({ userId }) {
         <Toggle on={smsEnabled} onToggle={() => setSmsEnabled(s => !s)} />
       </div>
 
-      {/* Phone number */}
+      {/* Phone number + verification */}
       {smsEnabled && (
         <div style={{ marginTop: 14 }}>
           <label>
@@ -174,13 +269,69 @@ export default function ReminderSettings({ userId }) {
               type="tel"
               placeholder="+1 212 555 1234"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={e => onPhoneChange(e.target.value)}
               style={{ marginTop: 6 }}
             />
           </label>
           <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--soft)' }}>
-            Include country code, e.g. +1 for US.
+            Include country code, e.g. +1 for US. We'll text you a code to confirm it's yours.
           </p>
+
+          {phoneVerified ? (
+            <p className="settings-status ok" style={{ marginTop: 8 }}>✓ Phone verified</p>
+          ) : (
+            <div style={{ marginTop: 10 }}>
+              {verifyStep === 'idle' ? (
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={verifyState === 'sending'}
+                >
+                  {verifyState === 'sending' ? 'Sending...' : 'Send code'}
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <label style={{ flex: '1 1 140px' }}>
+                    <span className="settings-label">Verification code</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      placeholder="123456"
+                      value={code}
+                      onChange={e => setCode(e.target.value)}
+                      style={{ marginTop: 6 }}
+                    />
+                  </label>
+                  <button
+                    className="btn primary"
+                    type="button"
+                    onClick={handleVerifyCode}
+                    disabled={verifyState === 'checking'}
+                  >
+                    {verifyState === 'checking' ? 'Verifying...' : 'Verify'}
+                  </button>
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={verifyState === 'sending'}
+                  >
+                    Resend
+                  </button>
+                </div>
+              )}
+              {verifyMsg.msg && (
+                <p
+                  className={`settings-status${verifyMsg.ok === true ? ' ok' : verifyMsg.ok === false ? ' err' : ''}`}
+                  style={{ marginTop: 8 }}
+                >
+                  {verifyMsg.msg}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -120,6 +120,39 @@ function buildEmailHTML(username, label, focus, siteUrl) {
 </html>`;
 }
 
+// ─── SMS ────────────────────────────────────────────────────────────────────
+
+function buildSMSBody(username, label, focus, siteUrl) {
+  return [
+    `NGM Daily Reminder`,
+    `Hey ${username} — today is ${label}.`,
+    `${focus}`,
+    `${siteUrl}/workout`,
+    `Reply STOP to unsubscribe.`,
+  ].join('\n');
+}
+
+async function sendSMS({ to, username, label, focus, siteUrl, accountSid, authToken, fromNumber }) {
+  const body = buildSMSBody(username, label, focus, siteUrl);
+  const res = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+      },
+      body: new URLSearchParams({ Body: body, From: fromNumber, To: to }).toString(),
+    }
+  );
+  if (!res.ok) {
+    const b = await res.text();
+    throw new Error(`Twilio error: ${b}`);
+  }
+}
+
+// ─── Email ──────────────────────────────────────────────────────────────────
+
 async function sendEmail({ to, username, label, focus, siteUrl, resendKey }) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -148,15 +181,18 @@ exports.handler = async () => {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const SITE_URL   = process.env.SITE_URL ?? 'https://noguessmethod.com';
-  const RESEND_KEY = process.env.RESEND_API_KEY;
+  const SITE_URL    = process.env.SITE_URL ?? 'https://noguessmethod.com';
+  const RESEND_KEY  = process.env.RESEND_API_KEY;
+  const TWILIO_SID  = process.env.TWILIO_ACCOUNT_SID;
+  const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
+  const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
   const currentUTC = getCurrentUTCTime();
 
   const { data: users, error } = await sb
     .from('profiles')
-    .select('id, username, reminder_time, reminder_timezone, reminder_email_enabled, joined_at')
-    .eq('reminder_email_enabled', true)
+    .select('id, username, reminder_time, reminder_timezone, reminder_email_enabled, reminder_sms_enabled, phone_number, phone_verified, joined_at')
+    .or('reminder_email_enabled.eq.true,reminder_sms_enabled.eq.true')
     .not('reminder_time', 'is', null);
 
   if (error) {
@@ -169,7 +205,7 @@ exports.handler = async () => {
     return { statusCode: 200, body: JSON.stringify({ sent: 0 }) };
   }
 
-  const results = { email: { sent: 0, failed: 0 } };
+  const results = { email: { sent: 0, failed: 0 }, sms: { sent: 0, failed: 0 } };
 
   await Promise.allSettled(users.map(async (user) => {
     // Strip seconds from stored time e.g. "13:00:00" -> "13:00"
@@ -204,6 +240,22 @@ exports.handler = async () => {
       } catch (err) {
         console.error(`Email failed for ${user.id}:`, err.message);
         results.email.failed++;
+      }
+    }
+
+    if (user.reminder_sms_enabled && user.phone_verified && user.phone_number && TWILIO_SID) {
+      try {
+        await sendSMS({
+          to: user.phone_number, username: name,
+          label: workout.label, focus: workout.focus,
+          siteUrl: SITE_URL,
+          accountSid: TWILIO_SID, authToken: TWILIO_AUTH, fromNumber: TWILIO_FROM,
+        });
+        results.sms.sent++;
+        console.log(`SMS sent to ${user.phone_number}`);
+      } catch (err) {
+        console.error(`SMS failed for ${user.id}:`, err.message);
+        results.sms.failed++;
       }
     }
   }));
