@@ -213,7 +213,7 @@ export default function CourseCard({
 
                 {tag!="Free"&&
 
-                  <img width={15} src={tag=="Completed"?"/icons/mingcute--check-fill.svg":tag=="Premium"?"public/icons/fluent--premium-12-filled.svg":tag=="Inprogress"?"/icons/boxicons--clock.svg":""} alt="" />
+                  <img width={15} src={tag=="Completed"?"/icons/mingcute--check-fill.svg":tag=="Premium"?"/icons/fluent--premium-12-filled.svg":tag=="Inprogress"?"/icons/boxicons--clock.svg":""} alt="" />
                 }
               {tag}
 
