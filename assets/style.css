@@ -1364,3 +1364,101 @@ option{background:#111;color:#fff}
   .modal-body{padding:16px 20px}
   .modal-footer{padding:14px 20px 24px}
 }
+
+
+/* userHome page */
+
+.UH-Container{
+ width:min(1160px, calc(100% - 32px));
+  margin:0 auto;
+  padding:20px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  
+
+}
+
+
+.layout {
+  display: flex;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 450px;
+  background-color: #0a0a0a;
+  border-right: 1px solid #1a1a1a;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.sidebar{
+  width: 300px;
+ z-index: 30;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 20px;
+  
+}
+
+.sidebar nav ul li a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0 20px;
+}
+
+.sidebar nav ul li a:hover {
+  color: #fff;
+}
+
+/* Main Content Styling */
+.content {
+  flex-grow: 1;
+  padding: 180px 40px;
+  width: full;
+  justify-content: center;
+  height: 100vh;
+  overflow: auto;
+}
+.content>h2{
+  text-align: center;
+}
+
+.srch-bar{
+  margin-bottom: 40px;
+  padding:  20px;
+}
+
+.ContentSec{
+  padding: 80px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+.sidebar nav ul li .Main-active{
+  color: white;
+}
+
+.Store-nav{
+  display: flex;
+  justify-content: end;
+  padding: 10px 0;
+}
+
+/* userHome page */
