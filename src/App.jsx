@@ -18,6 +18,10 @@ import NotFound from './pages/NotFound'
 import Checkout from './pages/Checkout'
 import Macros from './pages/Macros'
 import Cancel from './pages/Cancel'
+import Course from './pages/userHome/Courses'
+import Workouts from './pages/userHome/Workouts'
+import Store from './pages/userHome/Store'
+import Library from './pages/userHome/Library'
 
 function AnimatedRoutes() {
   const location = useLocation()
