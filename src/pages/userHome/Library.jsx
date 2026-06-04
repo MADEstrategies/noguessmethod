@@ -1,5 +1,5 @@
 import UserHomeLayout from './UserHomeLayout'
-import CourseCard from '../components/CourseCard'
+import CourseCard from '../../components/CourseCard'
 
 const LIBRARY = [
   { title: 'Strength Foundations',   meta: '6 Videos · 55 min', tag: 'Completed',  gradientIndex: 0 },
