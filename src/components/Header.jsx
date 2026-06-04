@@ -24,7 +24,7 @@ export default function Header() {
 
 const navLinks = (
   <>
-    <Link to="/free">Free Board</Link>
+    {!session && <Link to="/free">Free Board</Link>}
     {!session && <Link to="/signup">Sign Up</Link>}
     {!session && <Link to="/login" className="primary">Login</Link>}
     {session && <Link to="/workout">Today's Workout</Link>}
