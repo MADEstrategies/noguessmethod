@@ -1,5 +1,4 @@
-import UserHomeLayout from '../UserHomeLayout'
-
+import UserHomeLayout from './UserHomeLayout'
 export default function Store() {
   return (
     <UserHomeLayout title="Store">
