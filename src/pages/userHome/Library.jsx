@@ -1,22 +1,56 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../context/AuthContext'
 import UserHomeLayout from './UserHomeLayout'
 import CourseCard from '../../components/CourseCard'
 
-const LIBRARY = [
-  { title: 'Strength Foundations',   meta: '6 Videos · 55 min', tag: 'Completed',  gradientIndex: 0 },
-  { title: 'Fat Loss Blueprint',      meta: '4 Videos · 40 min', tag: 'Inprogress', gradientIndex: 1 },
-  { title: 'Mobility for Lifters',    meta: '3 Videos · 30 min', tag: 'Inprogress', gradientIndex: 3 },
-  { title: 'Nutrition Fundamentals',  meta: '5 Videos · 45 min', tag: 'Inprogress', gradientIndex: 4 },
-  { title: 'Recovery & Sleep Protocol', meta: '3 Videos · 25 min', tag: 'Inprogress', gradientIndex: 2 },
-]
-
 export default function Library() {
+  const { session } = useAuth()
+  const [items,   setItems]   = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!session) return
+    async function load() {
+      const { data } = await supabase
+        .from('user_library')
+        .select('status, course_id, courses(*)')
+        .eq('user_id', session.user.id)
+        .order('saved_at', { ascending: false })
+      setItems(data ?? [])
+      setLoading(false)
+    }
+    load()
+  }, [session])
+
   return (
     <UserHomeLayout title="Library">
-      <div className="uhome-grid">
-        {LIBRARY.map((item, i) => (
-          <CourseCard key={i} {...item} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="uhome-empty"><p>Loading...</p></div>
+      ) : items.length === 0 ? (
+        <div className="uhome-empty">
+          <div className="uhome-empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <p>No saved courses yet. Browse Courses to get started.</p>
+        </div>
+      ) : (
+        <div className="uhome-grid">
+          {items.map((item, i) => (
+            <CourseCard
+              key={item.course_id}
+              title={item.courses.title}
+              meta={`${item.courses.video_count} Videos · ${item.courses.duration_mins} min`}
+              tag={item.status === 'completed' ? 'Completed' : item.status === 'inprogress' ? 'Inprogress' : 'Saved'}
+              bgImg={item.courses.thumbnail_url}
+              gradientIndex={i}
+              save={true}
+            />
+          ))}
+        </div>
+      )}
     </UserHomeLayout>
   )
 }
