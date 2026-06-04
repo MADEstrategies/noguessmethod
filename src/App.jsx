@@ -30,10 +30,10 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
 
         
-<Route path='/courses'  element={<ProtectedRoute><Course /></ProtectedRoute>} />
-<Route path='/store'    element={<ProtectedRoute><Store /></ProtectedRoute>} />
-<Route path='/library'  element={<ProtectedRoute><Library /></ProtectedRoute>} />
-<Route path='/workouts' element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
+        <Route path='/courses'  element={<ProtectedRoute><Course /></ProtectedRoute>} />
+        <Route path='/store'    element={<ProtectedRoute><Store /></ProtectedRoute>} />
+        <Route path='/library'  element={<ProtectedRoute><Library /></ProtectedRoute>} />
+        <Route path='/workouts' element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
         <Route path="/"          element={<Home />} />
         <Route path="/login"     element={<Login />} />
         <Route path="/signup"    element={<Signup />} />
