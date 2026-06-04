@@ -1,4 +1,4 @@
-import UserHomeLayout from '../UserHomeLayout'
+import UserHomeLayout from './UserHomeLayout'
 import CourseCard from '../components/CourseCard'
 
 const COURSES = [
