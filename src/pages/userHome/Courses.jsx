@@ -1,58 +1,24 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
-import CourseCard from '../../components/CourseCard';
-const Courses = () => {
+import UserHomeLayout from '../layouts/UserHomeLayout'
+import CourseCard from '../components/CourseCard'
+
+const COURSES = [
+  { title: 'Strength Foundations',      meta: '6 Videos · 55 min', tag: 'Premium',    gradientIndex: 0 },
+  { title: 'Fat Loss Blueprint',         meta: '4 Videos · 40 min', tag: 'Free',       gradientIndex: 1 },
+  { title: 'Hypertrophy Masterclass',    meta: '8 Videos · 70 min', tag: 'Premium',    gradientIndex: 2 },
+  { title: 'Mobility for Lifters',       meta: '3 Videos · 30 min', tag: 'Free',       gradientIndex: 3 },
+  { title: 'Nutrition Fundamentals',     meta: '5 Videos · 45 min', tag: 'Free',       gradientIndex: 4 },
+  { title: 'Progressive Overload Guide', meta: '4 Videos · 35 min', tag: 'Premium',    gradientIndex: 1 },
+  { title: 'Recovery & Sleep Protocol',  meta: '3 Videos · 25 min', tag: 'Free',       gradientIndex: 2 },
+]
+
+export default function Courses() {
   return (
-    <div className=''>
-    <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">NGM</div>
-    <nav>
-       <ul>
-                       <li><input type="text" placeholder='Search' className='srch-bar'/></li>
-                       
-                       <li>
-                         <Link to={'/workouts'}>Workouts</Link>
-                         </li>
-                       <li>
-                         <Link to={'/courses'} className='Main-active'  >Courses</Link>
-                         
-                         </li>
-                       <li>
-                           <Link to={'/store'}  >Store</Link>
-                       
-                       </li>
-               
-                        <li>
-                           <Link to={'/library'}  >Library</Link>
-                       
-                       </li>
-                     </ul>
-    </nav>
-  </aside>
-
-  <main class="content">
-    <h2>Courses</h2>
-    <div className='ContentSec'>
-
-    <CourseCard/>
-    <CourseCard tag='Free'/>
-    <CourseCard tag='Free'/>
-    <CourseCard tag='Free'/>
-    <CourseCard tag='Free'/>
-    <CourseCard/>
-
-   
-    <CourseCard tag='Free'/>
-    </div>
-  </main>
-</div>
-
-      
-        
-        </div>
+    <UserHomeLayout title="Courses">
+      <div className="uhome-grid">
+        {COURSES.map((course, i) => (
+          <CourseCard key={i} {...course} />
+        ))}
+      </div>
+    </UserHomeLayout>
   )
 }
-
-export default Courses;
