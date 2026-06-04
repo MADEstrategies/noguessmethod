@@ -9,12 +9,13 @@ const GRADIENTS = [
 ]
 
 export default function CourseCard({
-  title = 'Working Out for Beginners',
-  meta = '3 Videos · 40 min',
-  tag = 'Premium',
+  title = 'Course Title',
+  meta = '0 Videos · 0 min',
+  tag = 'Free',
   bgImg = null,
   gradientIndex = 0,
   save = false,
+  onSave = null,
 }) {
   const [saved, setSaved] = useState(save)
 
@@ -22,16 +23,21 @@ export default function CourseCard({
     tag === 'Premium'    ? 'course-tag premium' :
     tag === 'Completed'  ? 'course-tag completed' :
     tag === 'Inprogress' ? 'course-tag inprogress' :
+    tag === 'Saved'      ? 'course-tag inprogress' :
     'course-tag free'
 
   const bgStyle = bgImg
     ? { backgroundImage: `url('${bgImg}')` }
     : { background: GRADIENTS[gradientIndex % GRADIENTS.length] }
 
+  function handleSave() {
+    setSaved(s => !s)
+    if (onSave) onSave()
+  }
+
   return (
     <div className="course-card">
       <div className="course-card-img" style={bgStyle}>
-        {/* Decorative circle */}
         {!bgImg && (
           <div className="course-card-placeholder">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -41,7 +47,7 @@ export default function CourseCard({
         )}
         <button
           className={`course-save-btn ${saved ? 'saved' : ''}`}
-          onClick={() => setSaved(s => !s)}
+          onClick={handleSave}
           aria-label={saved ? 'Unsave' : 'Save'}
           type="button"
         >
