@@ -1,5 +1,5 @@
 import UserHomeLayout from './UserHomeLayout'
-import CourseCard from '../components/CourseCard'
+import CourseCard from '../../components/CourseCard'
 
 const COURSES = [
   { title: 'Strength Foundations',      meta: '6 Videos · 55 min', tag: 'Premium',    gradientIndex: 0 },
