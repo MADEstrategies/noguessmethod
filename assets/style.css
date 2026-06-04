@@ -1425,16 +1425,19 @@ option{background:#111;color:#fff}
   color:var(--muted);
   border:1px solid transparent;
   background:transparent;
-  transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
 }
 .uhome-nav-link:hover{
   background:rgba(255,255,255,.06);
   color:#fff;
+  box-shadow:none;
 }
 .uhome-nav-link.active{
-  background:rgba(255,255,255,.1);
-  border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.18);
   color:#fff;
+  box-shadow:0 0 12px rgba(255,255,255,.12), inset 0 0 12px rgba(255,255,255,.04);
+  text-shadow:0 0 12px rgba(255,255,255,.6);
 }
 .uhome-main{display:grid;gap:22px}
 .uhome-main-header{margin-bottom:4px}
