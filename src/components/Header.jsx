@@ -20,12 +20,15 @@ export default function Header() {
     navigate('/')
   }
 
-  const navLinks = (
+// Replace the navLinks const in your Header.jsx with this:
+
+const navLinks = (
   <>
     <Link to="/free">Free Board</Link>
     {!session && <Link to="/signup">Sign Up</Link>}
     {!session && <Link to="/login" className="primary">Login</Link>}
     {session && <Link to="/workout">Today's Workout</Link>}
+    {session && <Link to="/courses">Courses</Link>}
     {session && <Link to="/macros">Macros</Link>}
     {session && <Link to="/account" className="primary">Member Hub</Link>}
     {session && (
