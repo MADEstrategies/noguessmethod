@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
-import CourseCard from '../../components/CourseCard';
+import CourseCard from '../../components/CourseCard'
 import BlogCard from '../../components/BlogCard';
 const Workouts = () => {
   return (
