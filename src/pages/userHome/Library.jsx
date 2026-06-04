@@ -1,59 +1,22 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
-import CourseCard from '../../components/CourseCard';
-const Library = () => {
+import UserHomeLayout from '../layouts/UserHomeLayout'
+import CourseCard from '../components/CourseCard'
+
+const LIBRARY = [
+  { title: 'Strength Foundations',   meta: '6 Videos · 55 min', tag: 'Completed',  gradientIndex: 0 },
+  { title: 'Fat Loss Blueprint',      meta: '4 Videos · 40 min', tag: 'Inprogress', gradientIndex: 1 },
+  { title: 'Mobility for Lifters',    meta: '3 Videos · 30 min', tag: 'Inprogress', gradientIndex: 3 },
+  { title: 'Nutrition Fundamentals',  meta: '5 Videos · 45 min', tag: 'Inprogress', gradientIndex: 4 },
+  { title: 'Recovery & Sleep Protocol', meta: '3 Videos · 25 min', tag: 'Inprogress', gradientIndex: 2 },
+]
+
+export default function Library() {
   return (
-    <div className=''>
-    <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">NGM</div>
-    <nav>
-     <ul>
-                  <li><input type="text" placeholder='Search' className='srch-bar'/></li>
-                  
-                  <li>
-                    <Link to={'/workouts'}>Workouts</Link>
-                    </li>
-                  <li>
-                    <Link to={'/courses'}  >Courses</Link>
-                    
-                    </li>
-                  <li>
-                      <Link to={'/store'}  >Store</Link>
-                  
-                  </li>
-          
-                   <li>
-                      <Link to={'/library'} className='Main-active' >Library</Link>
-                  
-                  </li>
-                </ul>
-    </nav>
-  </aside>
-
-  <main class="content">
-    <h2>Library</h2>
-    <div className='ContentSec'>
-      {/*   <div>
-            <p>Nothing in you library</p>
-        </div> */}
-
-        <CourseCard tag='Completed'/>
-        <CourseCard tag='Inprogress'/>
-        <CourseCard tag='Inprogress'/>
-        <CourseCard tag='Inprogress'/>
-        <CourseCard tag='Inprogress'/> 
-        <CourseCard tag='Inprogress'/> 
-
-    </div>
-  </main>
-</div>
-
-      
-        
-        </div>
+    <UserHomeLayout title="Library">
+      <div className="uhome-grid">
+        {LIBRARY.map((item, i) => (
+          <CourseCard key={i} {...item} />
+        ))}
+      </div>
+    </UserHomeLayout>
   )
 }
-
-export default Library;
