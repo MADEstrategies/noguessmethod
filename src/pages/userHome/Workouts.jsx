@@ -1,55 +1,42 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
-import CourseCard from '../../components/CourseCard'
-import BlogCard from '../../components/BlogCard';
-const Workouts = () => {
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import UserHomeLayout from './UserHomeLayout'
+import BlogCard from '../../components/BlogCard'
+
+export default function Workouts() {
+  const [workouts, setWorkouts] = useState([])
+  const [loading,  setLoading]  = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('workouts_content')
+      .select('*')
+      .eq('published', true)
+      .order('sort_order')
+      .then(({ data }) => {
+        setWorkouts(data ?? [])
+        setLoading(false)
+      })
+  }, [])
+
   return (
-    <div className=''>
-    <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">NGM</div>
-    <nav>
-        <ul>
-              <li><input type="text" placeholder='Search' className='srch-bar'/></li>
-              
-              <li>
-                <Link to={'/workouts'} className='Main-active'>Workouts</Link>
-                </li>
-              <li>
-                <Link to={'/courses'}  >Courses</Link>
-                
-                </li>
-              <li>
-                  <Link to={'/store'}>Store</Link>
-              
-              </li>
-      
-               <li>
-                  <Link to={'/library'}  >Library</Link>
-              
-              </li>
-            </ul>
-    </nav>
-  </aside>
-
-  <main class="content">
-    <h2>
-        Workouts
-    </h2>
-    <div className='ContentSec'>
-
-    <BlogCard title='Chest' num='01' date='Inprogress' bgImg='/assets/pexels-emre-varisli-506660537-28902616.jpg'/>
-    <BlogCard title='Triceps' date='Inprogress' bgImg='/assets/pexels-marcuschanmedia-17898141.jpg'/>
-    <BlogCard title='Abs' date='Inprogress' bgImg='/assets/pexels-gu-ko-2150570603-35376434.jpg' num='03'/>
-    </div>
-  </main>
-</div>
-
-      
-        
+    <UserHomeLayout title="Workouts">
+      {loading ? (
+        <div className="uhome-empty"><p>Loading...</p></div>
+      ) : (
+        <div className="uhome-blog-grid">
+          {workouts.map(w => (
+            <BlogCard
+              key={w.id}
+              title={w.title}
+              num={w.num}
+              description={w.description ?? ''}
+              date="In Progress"
+              bgImg={w.image_url ?? ''}
+            />
+          ))}
         </div>
+      )}
+    </UserHomeLayout>
   )
 }
-
-export default Workouts;
