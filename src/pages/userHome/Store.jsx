@@ -1,55 +1,17 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
-import CourseCard from '../../components/CourseCard';
-const Store = () => {
+import UserHomeLayout from '../layouts/UserHomeLayout'
+
+export default function Store() {
   return (
-    <div className=''>
-    <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">NGM</div>
-    <nav>
-     <ul>
-                  <li><input type="text" placeholder='Search' className='srch-bar'/></li>
-                  
-                  <li>
-                    <Link to={'/workouts'}>Workouts</Link>
-                    </li>
-                  <li>
-                    <Link to={'/courses'}  >Courses</Link>
-                    
-                    </li>
-                  <li>
-                      <Link to={'/store'}  className='Main-active'>Store</Link>
-                  
-                  </li>
-          
-                   <li>
-                      <Link to={'/library'}  >Library</Link>
-                  
-                  </li>
-                </ul>
-    </nav>
-  </aside>
-
-  <main class="content">
-    <h2>Store</h2>
-    <div className='Store-nav'>
-        <img width={25} src="public/icons/mdi-light--cart (1).svg" alt="" />
-    </div>
-    <div className='ContentSec'>
-        <div>
-            <p>Store empty</p>
+    <UserHomeLayout title="Store">
+      <div className="uhome-empty">
+        <div className="uhome-empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
         </div>
-
-    </div>
-  </main>
-</div>
-
-      
-        
-        </div>
+        <p>Store coming soon.</p>
+      </div>
+    </UserHomeLayout>
   )
 }
-
-export default Store;
