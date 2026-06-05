@@ -1,107 +1,239 @@
 const { createClient } = require('@supabase/supabase-js');
-const twilio = require('twilio');
 
-// Maps preferred_time values to the UTC hour when the SMS fires
-const TIME_TO_UTC_HOUR = {
-  early_morning: 11,  // 6am ET
-  morning:       13,  // 8am ET
-  midday:        17,  // 12pm ET
-  afternoon:     20,  // 3pm ET
-  evening:       23,  // 6pm ET
-  night:          1,  // 8pm ET
-};
-
-// 30-day rotating schedule (same logic as the workout page)
-const SCHEDULE = [
-  'push-a','pull-a','legs-a','core','push-b','pull-b','legs-b','recovery',
-  'push-a','pull-a','legs-a','core','push-b','pull-b','legs-b','recovery',
-  'push-a','pull-a','legs-a','core','push-b','pull-b','legs-b','recovery',
-  'push-a','pull-a','legs-a','core','push-b','pull-b',
-];
+const SCHEDULE = require('../../src/data/schedule.json');
 
 const WORKOUT_INFO = {
-  'push-a':    { label: 'Push Day A',          focus: 'Chest · Shoulders · Triceps',        exercises: 6 },
-  'pull-a':    { label: 'Pull Day A',          focus: 'Back · Biceps · Rear Delts',         exercises: 6 },
-  'legs-a':    { label: 'Legs Day A',          focus: 'Quads · Hamstrings · Glutes',        exercises: 6 },
-  'core':      { label: 'Core & Mobility Day', focus: 'Stability · Anti-Rotation · Flex',   exercises: 6 },
-  'push-b':    { label: 'Push Day B',          focus: 'Chest · Shoulders · Triceps',        exercises: 6 },
-  'pull-b':    { label: 'Pull Day B',          focus: 'Back · Biceps (Strength + Stretch)', exercises: 6 },
-  'legs-b':    { label: 'Legs Day B',          focus: 'Quads · Glutes · Hamstrings',        exercises: 6 },
-  'recovery':  { label: 'Active Recovery',     focus: 'Cardio · Mobility · Blood Flow',     exercises: 6 },
+  'push-a':   { label: 'Push Day A',          focus: 'Chest · Shoulders · Triceps' },
+  'pull-a':   { label: 'Pull Day A',           focus: 'Back · Biceps · Rear Delts' },
+  'legs-a':   { label: 'Legs Day A',           focus: 'Quads · Hamstrings · Glutes' },
+  'core':     { label: 'Core & Mobility Day',  focus: 'Stability · Anti-Rotation · Flexibility' },
+  'push-b':   { label: 'Push Day B',           focus: 'Chest · Shoulders · Triceps (Volume)' },
+  'pull-b':   { label: 'Pull Day B',           focus: 'Back · Biceps (Strength + Stretch)' },
+  'legs-b':   { label: 'Legs Day B',           focus: 'Quads · Glutes · Hamstrings (Accessory)' },
+  'recovery': { label: 'Active Recovery',      focus: 'Cardio · Mobility · Blood Flow' },
 };
 
-function getTodayWorkout() {
-  const epochDay = Math.floor(Date.now() / 86400000);
-  const key = SCHEDULE[epochDay % SCHEDULE.length];
-  return WORKOUT_INFO[key];
+function getTodayIndex(joinedAt) {
+  const start = new Date(joinedAt);
+  start.setHours(0, 0, 0, 0);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const days = Math.floor((now - start) / 86400000);
+  return days % SCHEDULE.length;
 }
 
-function buildMessage(workout, username) {
-  const name = username && username !== '—' ? username : 'there';
+function localTimeToUTC(timeStr, timezone) {
+  const [hh, mm] = timeStr.split(':').map(Number);
+  const now = new Date();
+  const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0);
+  const utcDate  = new Date(localDate.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const tzDate   = new Date(localDate.toLocaleString('en-US', { timeZone: timezone }));
+  const diff     = utcDate - tzDate;
+  const utc      = new Date(localDate.getTime() + diff);
+  return `${String(utc.getHours()).padStart(2,'0')}:${String(utc.getMinutes()).padStart(2,'0')}`;
+}
+
+function getCurrentUTCTime() {
+  const now = new Date();
+  return `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}`;
+}
+
+function buildEmailHTML(username, label, focus, siteUrl) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Today's Program — NGM</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Inter,Arial,Helvetica,sans-serif;color:#0a0a0a;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+          <tr>
+            <td style="padding:0 0 24px;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:#0a0a0a;border-radius:14px;width:46px;height:46px;text-align:center;vertical-align:middle;">
+                    <span style="font-size:13px;font-weight:900;letter-spacing:.08em;color:#ffffff;line-height:46px;display:block;">NGM</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border:1px solid #e5e5e5;border-radius:24px;padding:36px;">
+              <p style="margin:0 0 20px;font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#888888;">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#0a0a0a;margin-right:10px;vertical-align:middle;"></span>
+                Today's Program
+              </p>
+              <h1 style="margin:0;font-size:38px;font-weight:900;letter-spacing:-.04em;line-height:.96;text-transform:uppercase;color:#0a0a0a;">
+                ${label.toUpperCase()}
+              </h1>
+              <div style="margin:18px 0 0;display:inline-block;border:1px solid #e5e5e5;background:#f4f4f4;border-radius:999px;padding:7px 15px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555555;">
+                ${focus}
+              </div>
+              <hr style="border:0;border-top:1px solid #eeeeee;margin:28px 0;"/>
+              <p style="margin:0 0 28px;font-size:16px;color:#555555;line-height:1.6;">
+                Hey ${username} — your program is ready. Stop guessing, start progressing.
+              </p>
+              <a href="${siteUrl}/workout"
+                 style="display:inline-block;background:#0a0a0a;color:#ffffff;font-size:14px;font-weight:700;padding:14px 28px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
+                View Today's Workout →
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 0 0;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+                You're receiving this because you enabled workout reminders.<br/>
+                <a href="${siteUrl}/settings" style="color:#888888;text-decoration:underline;">
+                  Manage reminder settings
+                </a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildSMSBody(username, label, focus, siteUrl) {
   return [
     `NGM Daily Reminder`,
-    `Hey ${name} — today is ${workout.label}.`,
-    `${workout.focus}`,
-    `${workout.exercises} exercises ready at noguessmethod.com/workout`,
+    `Hey ${username} — today is ${label}.`,
+    `${focus}`,
+    `${siteUrl}/workout`,
     `Reply STOP to unsubscribe.`,
   ].join('\n');
 }
 
-exports.handler = async (event) => {
-  const currentHour = new Date().getUTCHours();
+async function sendSMS({ to, username, label, focus, siteUrl, accountSid, authToken, fromNumber }) {
+  const body = buildSMSBody(username, label, focus, siteUrl);
+  const res = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+      },
+      body: new URLSearchParams({ Body: body, From: fromNumber, To: to }).toString(),
+    }
+  );
+  if (!res.ok) {
+    const b = await res.text();
+    throw new Error(`Twilio error: ${b}`);
+  }
+}
 
+async function sendEmail({ to, username, label, focus, siteUrl, resendKey }) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${resendKey}`,
+    },
+    body: JSON.stringify({
+      from:    'NGM <reminders@noguessmethod.com>',
+      to:      [to],
+      subject: `Today's Program: ${label}`,
+      html:    buildEmailHTML(username, label, focus, siteUrl),
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Resend error: ${body}`);
+  }
+}
+
+exports.handler = async () => {
   const sb = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  // Find which preferred_time values map to this UTC hour
-  const matchingTimes = Object.entries(TIME_TO_UTC_HOUR)
-    .filter(([, hour]) => hour === currentHour)
-    .map(([key]) => key);
+  const SITE_URL    = process.env.SITE_URL ?? 'https://noguessmethod.com';
+  const RESEND_KEY  = process.env.RESEND_API_KEY;
+  const TWILIO_SID  = process.env.TWILIO_ACCOUNT_SID;
+  const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
+  const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
-  if (!matchingTimes.length) {
-    return { statusCode: 200, body: JSON.stringify({ sent: 0, reason: 'No users scheduled for this hour' }) };
-  }
+  const currentUTC = getCurrentUTCTime();
 
-  // Fetch users with a phone number whose preferred_time matches this hour
   const { data: users, error } = await sb
     .from('profiles')
-    .select('username, phone_number, preferred_time')
-    .in('preferred_time', matchingTimes)
-    .not('phone_number', 'is', null);
+    .select('id, username, reminder_time, reminder_timezone, reminder_email_enabled, reminder_sms_enabled, phone_number, phone_verified, joined_at')
+    .or('reminder_email_enabled.eq.true,reminder_sms_enabled.eq.true')
+    .not('reminder_time', 'is', null);
 
   if (error) {
+    console.error('Supabase fetch error:', error.message);
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 
   if (!users?.length) {
-    return { statusCode: 200, body: JSON.stringify({ sent: 0, reason: 'No users with phone numbers at this hour' }) };
+    console.log('No users with reminders enabled');
+    return { statusCode: 200, body: JSON.stringify({ sent: 0 }) };
   }
 
-  const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  const workout = getTodayWorkout();
-  const results = { sent: 0, failed: 0, errors: [] };
+  const results = { email: { sent: 0, failed: 0 }, sms: { sent: 0, failed: 0 } };
 
-  await Promise.allSettled(
-    users.map(async (user) => {
+  await Promise.allSettled(users.map(async (user) => {
+    const storedTime = (user.reminder_time ?? '').slice(0, 5);
+    const userUTC    = localTimeToUTC(storedTime, user.reminder_timezone ?? 'America/New_York');
+
+    const [uh, um] = userUTC.split(':').map(Number);
+    const [ch, cm] = currentUTC.split(':').map(Number);
+    const userMins = uh * 60 + um;
+    const currMins = ch * 60 + cm;
+    if (Math.abs(userMins - currMins) > 7) return;
+
+    const idx     = getTodayIndex(user.joined_at);
+    const key     = SCHEDULE[idx];
+    const workout = WORKOUT_INFO[key];
+    const name    = user.username ?? 'there';
+
+    if (user.reminder_email_enabled && RESEND_KEY) {
       try {
-        await client.messages.create({
-          body: buildMessage(workout, user.username),
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: user.phone_number,
-        });
-        results.sent++;
+        const { data: authUser } = await sb.auth.admin.getUserById(user.id);
+        const email = authUser?.user?.email;
+        if (email) {
+          await sendEmail({
+            to: email, username: name,
+            label: workout.label, focus: workout.focus,
+            siteUrl: SITE_URL, resendKey: RESEND_KEY,
+          });
+          results.email.sent++;
+          console.log(`Email sent to ${email}`);
+        }
       } catch (err) {
-        results.failed++;
-        results.errors.push({ phone: user.phone_number, error: err.message });
+        console.error(`Email failed for ${user.id}:`, err.message);
+        results.email.failed++;
       }
-    })
-  );
+    }
 
-  console.log(`SMS reminders: sent=${results.sent} failed=${results.failed}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify(results),
-  };
+    if (user.reminder_sms_enabled && user.phone_verified && user.phone_number && TWILIO_SID) {
+      try {
+        await sendSMS({
+          to: user.phone_number, username: name,
+          label: workout.label, focus: workout.focus,
+          siteUrl: SITE_URL,
+          accountSid: TWILIO_SID, authToken: TWILIO_AUTH, fromNumber: TWILIO_FROM,
+        });
+        results.sms.sent++;
+        console.log(`SMS sent to ${user.phone_number}`);
+      } catch (err) {
+        console.error(`SMS failed for ${user.id}:`, err.message);
+        results.sms.failed++;
+      }
+    }
+  }));
+
+  console.log('Reminders:', JSON.stringify(results));
+  return { statusCode: 200, body: JSON.stringify(results) };
 };

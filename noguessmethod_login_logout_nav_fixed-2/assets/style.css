@@ -701,6 +701,431 @@ option{background:#111;color:#fff}
 .pricing-action{padding:20px;border-top:1px solid var(--line)}
 .checkout-status{margin-top:12px;font-size:14px;color:var(--muted);min-height:20px}
 
+/* ── Signup multi-step ── */
+.signup-panel{padding:44px 44px 40px}
+
+.signup-progress{
+  display:flex;
+  align-items:flex-start;
+  margin-bottom:44px;
+  gap:0;
+}
+.signup-step{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+  flex-shrink:0;
+}
+.signup-dot{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--soft);
+  font-size:12px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  transition:background 0.28s ease, border-color 0.28s ease, color 0.28s ease;
+}
+.signup-step.active .signup-dot{
+  background:#fff;
+  border-color:#fff;
+  color:#000;
+}
+.signup-step.done .signup-dot{
+  background:rgba(109,255,138,.14);
+  border-color:rgba(109,255,138,.45);
+  color:#6dff8a;
+}
+.signup-step-label{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--soft);
+  white-space:nowrap;
+  transition:color 0.2s ease;
+}
+.signup-step.active .signup-step-label{color:var(--muted)}
+.signup-step.done  .signup-step-label{color:rgba(109,255,138,.7)}
+.signup-connector{
+  flex:1;
+  height:1px;
+  background:var(--line);
+  margin:16px 10px 0;
+  transition:background 0.3s ease;
+}
+.signup-connector.done{background:rgba(109,255,138,.35)}
+
+.signup-body{
+  /* animation removed — framer-motion handles transitions */
+}
+
+.signup-actions{
+  display:flex;
+  gap:10px;
+  margin-top:28px;
+}
+.signup-actions button{flex:1}
+.signup-actions .primary{flex:2}
+
+/* ── Signup CTA & back buttons ── */
+.signup-cta{
+  font-size:15px!important;
+  min-height:52px!important;
+  letter-spacing:-.01em!important;
+  border-radius:16px!important;
+}
+.signup-back{
+  background:transparent!important;
+  border-color:rgba(255,255,255,.1)!important;
+  color:var(--soft)!important;
+}
+.signup-back:hover:not(:disabled){
+  background:rgba(255,255,255,.06)!important;
+  border-color:rgba(255,255,255,.2)!important;
+  color:#fff!important;
+}
+.signup-trust{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:14px;
+  font-size:12px;
+  color:var(--soft);
+  line-height:1.6;
+}
+.signup-trust a{color:var(--muted);text-decoration:underline;transition:color .15s}
+.signup-trust a:hover{color:#fff}
+.signup-trust-dot{opacity:.4}
+
+.signup-error{
+  margin:10px 0 0;
+  font-size:13px;
+  color:#ff6d6d;
+}
+
+.form-row-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+/* ── Chip selectors ── */
+.chip-label{
+  display:block;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--soft);
+  margin-bottom:10px;
+}
+.chip-group{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.045);
+  color:var(--muted);
+  border-radius:999px;
+  padding:9px 17px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  min-height:0;
+  transition:background .15s ease, border-color .15s ease, color .15s ease, transform .15s var(--ease-out-expo);
+}
+.chip:hover:not(:disabled){
+  background:rgba(255,255,255,.09);
+  border-color:rgba(255,255,255,.22);
+  color:#fff;
+  transform:translateY(-1px);
+}
+.chip.active{
+  background:#fff;
+  border-color:#fff;
+  color:#000;
+}
+
+/* ── Goal cards ── */
+.goal-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:20px;
+}
+.goal-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  border-radius:18px;
+  padding:18px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+  cursor:pointer;
+  text-align:left;
+  min-height:0;
+  transition:background .18s ease, border-color .18s ease, transform .18s var(--ease-out-expo), box-shadow .18s ease;
+}
+.goal-card:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.22);
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(0,0,0,.4);
+}
+.goal-card.active{
+  background:rgba(255,255,255,.11);
+  border-color:rgba(255,255,255,.48);
+  box-shadow:0 0 0 1px rgba(255,255,255,.1),0 14px 36px rgba(0,0,0,.44);
+}
+.goal-card:last-child:nth-child(odd){grid-column:span 2}
+.goal-label{font-size:14px;font-weight:900;color:#fff;letter-spacing:-.01em}
+.goal-sub{font-size:12px;color:var(--muted)}
+
+/* ── Preference toggles ── */
+.pref-list{
+  margin-top:20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  background:rgba(0,0,0,.18);
+}
+.pref-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  transition:background .15s ease;
+}
+.pref-row:last-child{border-bottom:0}
+.pref-row:hover{background:rgba(255,255,255,.025)}
+.pref-phone{padding:14px 18px;border-top:1px solid var(--line)}
+
+/* ── Toggle switch ── */
+.toggle-btn{
+  width:46px;
+  height:26px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.08);
+  padding:0;
+  cursor:pointer;
+  position:relative;
+  flex-shrink:0;
+  min-height:0;
+  transition:background .22s ease, border-color .22s ease;
+}
+.toggle-btn.on{
+  background:#fff;
+  border-color:#fff;
+}
+.toggle-knob{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  background:rgba(255,255,255,.45);
+  transition:transform .22s var(--ease-out-expo), background .22s ease;
+}
+.toggle-btn.on .toggle-knob{
+  transform:translateX(20px);
+  background:#000;
+}
+
+.reminder-toggle-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:4px 0;
+}
+
+/* ── Signup side panel ── */
+.signup-layout{
+  grid-template-columns:1fr 1fr;
+}
+.signup-side{
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  background:linear-gradient(160deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 100%);
+  position:relative;
+  overflow:hidden;
+  min-height:520px;
+}
+.signup-side::before{
+  content:'';
+  position:absolute;
+  top:-90px;
+  right:-60px;
+  width:300px;
+  height:300px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(255,255,255,.07) 0%, transparent 70%);
+  pointer-events:none;
+}
+.signup-side::after{
+  content:'';
+  position:absolute;
+  bottom:-80px;
+  left:-50px;
+  width:260px;
+  height:260px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(109,255,138,.05) 0%, transparent 70%);
+  pointer-events:none;
+}
+.signup-side-inner{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:32px;
+  height:100%;
+}
+.signup-side-headline{
+  font-size:clamp(28px, 3.4vw, 46px);
+  line-height:.94;
+  margin:6px 0 0;
+  letter-spacing:-.065em;
+  text-transform:uppercase;
+}
+.signup-side-sub{
+  margin:12px 0 0;
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.65;
+  max-width:340px;
+}
+.signup-stat-block{
+  background:rgba(255,255,255,.055);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:22px 24px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.signup-stat-num{
+  font-size:54px;
+  font-weight:900;
+  letter-spacing:-.06em;
+  line-height:1;
+  color:#fff;
+}
+.signup-stat-label{
+  font-size:13px;
+  color:var(--muted);
+  max-width:220px;
+  line-height:1.5;
+}
+.signup-perks{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.signup-perk{
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+}
+.signup-perk-dot{
+  width:20px;
+  height:20px;
+  border-radius:999px;
+  background:rgba(109,255,138,.12);
+  border:1px solid rgba(109,255,138,.28);
+  flex-shrink:0;
+  margin-top:2px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.signup-perk-dot::after{
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:#6dff8a;
+}
+.signup-perk-content{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.signup-perk-content strong{
+  font-size:14px;
+  color:#fff;
+  font-weight:800;
+}
+.signup-perk-content span{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.signup-quote{
+  border-top:1px solid var(--line);
+  padding-top:20px;
+  margin-top:auto;
+}
+.signup-quote-text{
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.65;
+  margin:0 0 10px;
+  font-style:italic;
+}
+.signup-quote-author{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--soft);
+}
+.signup-side-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:28px;
+}
+.signup-side-bg img{
+  width:110%;
+  max-width:none;
+  opacity:.06;
+  filter:grayscale(1) contrast(1.3);
+  object-fit:contain;
+}
+.signup-side-bg-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(12,12,12,.45) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(12,12,12,.55) 100%
+  );
+}
+
 /* ── Scroll-reveal utility ── */
 .fade-in{
   opacity:0;
@@ -736,6 +1161,10 @@ option{background:#111;color:#fff}
   .summary-card{position:static}
   .stats-bar{grid-template-columns:repeat(2,1fr)}
   .admin-section{overflow-x:auto}
+  .signup-panel{padding:28px 24px}
+  .form-row-2{grid-template-columns:1fr}
+  .signup-layout{grid-template-columns:1fr}
+  .signup-side{display:none}
 }
 @media(max-width:520px){
   .wrap,.site-header,.footer{width:calc(100% - 24px)}
@@ -748,4 +1177,8 @@ option{background:#111;color:#fff}
   .stats-bar{grid-template-columns:1fr 1fr}
   .footer{flex-direction:column;gap:10px;text-align:center}
   .footer span:nth-child(2){display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+  .signup-progress{gap:0}
+  .signup-step-label{display:none}
+  .goal-grid{grid-template-columns:1fr}
+  .goal-card:last-child:nth-child(odd){grid-column:auto}
 }
