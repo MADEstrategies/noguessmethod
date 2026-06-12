@@ -18,6 +18,7 @@ import Checkout from './pages/Checkout'
 import Macros from './pages/Macros'
 import Cancel from './pages/Cancel'
 import Course from './pages/userHome/Courses'
+import CoursePage from './pages/userHome/CoursePage'
 import Workouts from './pages/userHome/Workouts'
 import Store from './pages/userHome/Store'
 import Library from './pages/userHome/Library'
@@ -32,7 +33,8 @@ function AnimatedRoutes() {
         <Route path="/signup"    element={<Signup />} />
         <Route path="/upgrade"   element={<Upgrade />} />
         <Route path="/investors" element={<Investors />} />
-        <Route path="/courses"   element={<ProtectedRoute><Course /></ProtectedRoute>} />
+        <Route path="/courses"     element={<ProtectedRoute><Course /></ProtectedRoute>} />
+        <Route path="/courses/:id" element={<ProtectedRoute><CoursePage /></ProtectedRoute>} />
         <Route path="/store"     element={<ProtectedRoute><Store /></ProtectedRoute>} />
         <Route path="/library"   element={<ProtectedRoute><Library /></ProtectedRoute>} />
         <Route path="/workouts"  element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
