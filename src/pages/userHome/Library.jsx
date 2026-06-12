@@ -23,6 +23,12 @@ export default function Library() {
     load()
   }, [session])
 
+  function getTag(status) {
+    if (status === 'completed')  return 'Completed'
+    if (status === 'inprogress') return 'In Progress'
+    return 'Saved'
+  }
+
   return (
     <UserHomeLayout title="Library">
       {loading ? (
@@ -41,9 +47,10 @@ export default function Library() {
           {items.map((item, i) => (
             <CourseCard
               key={item.course_id}
+              id={item.course_id}
               title={item.courses.title}
               meta={`${item.courses.video_count} Videos · ${item.courses.duration_mins} min`}
-              tag={item.status === 'completed' ? 'Completed' : item.status === 'inprogress' ? 'Inprogress' : 'Saved'}
+              tag={getTag(item.status)}
               bgImg={item.courses.thumbnail_url}
               gradientIndex={i}
               save={true}
