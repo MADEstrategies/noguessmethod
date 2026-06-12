@@ -191,23 +191,38 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const [done,    setDone]    = useState(false)
 
-  function advance() {
-    setError('')
-    if (step === 0) {
-      if (!username.trim() || !email.trim() || !password || !confirm) {
-        setError('Please fill in all fields.'); return
-      }
-      if (password !== confirm) {
-        setError('Passwords do not match.'); return
-      }
-      if (password.length < 8) {
-        setError('Password must be at least 8 characters.'); return
-      }
+function advance() {
+  setError('')
+  if (step === 0) {
+    if (!username.trim() || !email.trim() || !password || !confirm) {
+      setError('Please fill in all fields.'); return
     }
-    setDirection(1)
-    setStep(s => s + 1)
+    if (password !== confirm) {
+      setError('Passwords do not match.'); return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.'); return
+    }
   }
-
+  if (step === 1) {
+    if (!gender) {
+      setError('Please select your gender.'); return
+    }
+    if (!age || parseInt(age) < 13 || parseInt(age) > 100) {
+      setError('Please enter a valid age (13-100).'); return
+    }
+    if (!level) {
+      setError('Please select your experience level.'); return
+    }
+  }
+  setDirection(1)
+  setStep(s => s + 1)
+}
+  if (step === 2) {
+  if (!goal) {
+    setError('Please select a goal.'); return
+  }
+}
   function back() {
     setError('')
     setDirection(-1)
