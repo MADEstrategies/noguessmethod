@@ -1658,3 +1658,11 @@ option{background:#111;color:#fff}
   .modal-body{padding:16px 20px}
   .modal-footer{padding:14px 20px 24px}
 }
+.home-cta-card{
+  padding:52px;
+  text-align:center;
+  max-width:680px;
+  margin:0 auto;
+}
+.home-cta-card .lead{margin-left:auto;margin-right:auto}
+.home-cta-card .actions{justify-content:center}
