@@ -1493,7 +1493,6 @@ option{background:#111;color:#fff}
 .pref-phone{margin-top:4px}
 
 /* Right panel */
-}
 .signup-side{
   position:relative;
   overflow:hidden;
@@ -1504,9 +1503,14 @@ option{background:#111;color:#fff}
 }
 .signup-side-bg{
   position:absolute;
-  inset:0;
-  z-index:0;
-  overflow:hidden;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  opacity:.15;
+  filter:grayscale(30%);
 }
 .signup-side-bg img{
   width:100%;
