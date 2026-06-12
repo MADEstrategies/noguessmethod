@@ -84,6 +84,7 @@ export default function Courses() {
           {courses.map((course, i) => (
             <CourseCard
               key={course.id}
+              id={course.id}
               title={course.title}
               meta={`${course.video_count} Videos · ${course.duration_mins} min`}
               tag={course.tag}
