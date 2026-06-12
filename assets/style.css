@@ -1324,11 +1324,10 @@ option{background:#111;color:#fff}
 /* ── Multi-step Signup ── */
 .signup-layout{
   grid-template-columns:minmax(0,1fr) minmax(320px,.85fr);
-  align-items:stretch;
-  min-height:calc(100vh - 180px);
+  align-items:start;
 }
 .signup-panel{
-  padding:36px;
+  padding:32px 36px;
   display:flex;
   flex-direction:column;
   gap:0;
@@ -1500,32 +1499,35 @@ option{background:#111;color:#fff}
   padding:0;
   display:flex;
   flex-direction:column;
+  min-height:600px;
 }
 .signup-side-bg{
   position:absolute;
   inset:0;
   z-index:0;
+  overflow:hidden;
 }
 .signup-side-bg img{
   width:100%;
   height:100%;
   object-fit:cover;
-  opacity:.18;
+  object-position:center top;
+  opacity:.15;
+  filter:grayscale(30%);
 }
 .signup-side-bg-overlay{
   position:absolute;
   inset:0;
-  background:linear-gradient(180deg, rgba(5,5,5,.4) 0%, rgba(5,5,5,.85) 100%);
+  background:linear-gradient(180deg, rgba(5,5,5,.3) 0%, rgba(5,5,5,.8) 60%, rgba(5,5,5,.95) 100%);
 }
 .signup-side-inner{
   position:relative;
   z-index:1;
-  padding:40px;
+  padding:36px;
   display:flex;
   flex-direction:column;
-  gap:28px;
-  height:100%;
-  justify-content:center;
+  gap:24px;
+  justify-content:flex-start;
 }
 .signup-side-headline{
   font-size:clamp(28px, 3.5vw, 46px);
