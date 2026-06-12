@@ -14,7 +14,7 @@ export default function Home() {
           <div className="card hero-copy">
             <div className="eyebrow">Structured training for intermediate lifters</div>
             <h1>Stop<br />Guessing.<br />Start<br />Lifting.</h1>
-            <p className="lead">You've been training for a year or more. You're stuck. NoGuessMethod gives you a structured daily system — so you know exactly what to do, how to do it, and when to push more.</p>
+            <p className="lead">You've been training for a year or more. You're stuck. NoGuessMethod gives you a structured daily system so you know exactly what to do, how to do it, and when to push more.</p>
             <div className="actions">
               <Link className="btn primary" to="/signup">Start Free</Link>
               <a className="btn" href="#how">See How It Works</a>
@@ -39,7 +39,7 @@ export default function Home() {
         <div className="card problem-card">
           <div className="eyebrow">The Problem</div>
           <h2>Most intermediate lifters<br />plateau for the same reasons.</h2>
-          <p className="lead" style={{ maxWidth: 600, marginBottom: 28 }}>Beginner programs are behind you. Advanced programming isn't for you yet. The middle is where most lifters stall — not because they're lazy, but because nothing tells them what comes next.</p>
+          <p className="lead" style={{ maxWidth: 600, marginBottom: 28 }}>Beginner programs are behind you. Advanced programming isn't for you yet. The middle is where most lifters stall. Not because they're lazy, but because nothing tells them what comes next.</p>
           <div className="feature-row">
             <div className="mini"><strong>The Plateau</strong><span>Same weight, same reps, same exercises. Progress stopped without a clear reason why.</span></div>
             <div className="mini"><strong>The Guesswork</strong><span>Searching Reddit for answers. Getting ten different opinions. Committing to none of them.</span></div>
@@ -65,7 +65,7 @@ export default function Home() {
           <div className="step card">
             <div className="step-num">02</div>
             <strong>Get today's workout</strong>
-            <p>A 30-day rotating PPL program updates daily — Push, Pull, Legs, Core, and Active Recovery. Structured for intermediate lifters, not beginners.</p>
+            <p>A 30-day rotating PPL program updates daily: Push, Pull, Legs, Core, and Active Recovery. Structured for intermediate lifters, not beginners.</p>
           </div>
           <div className="step card">
             <div className="step-num">03</div>
