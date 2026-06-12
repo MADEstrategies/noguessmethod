@@ -27,7 +27,7 @@ export default function CourseCard({
     tag === 'Premium'    ? 'course-tag premium' :
     tag === 'Completed'  ? 'course-tag completed' :
     tag === 'Inprogress' ? 'course-tag inprogress' :
-    tag === 'Saved'      ? 'course-tag inprogress' :
+   tag === 'Saved'      ? 'course-tag saved' :
     'course-tag free'
 
   const bgStyle = bgImg
