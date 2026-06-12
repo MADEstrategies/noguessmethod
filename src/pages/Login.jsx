@@ -98,8 +98,8 @@ export default function Login() {
               </div>
             </div>
             <div className="signup-quote">
-              <p className="signup-quote-text">"I went from randomly lifting to actually having a plan. My numbers have gone up every single week."</p>
-              <span className="signup-quote-author">Alex M., 3 months in</span>
+              <p className="signup-quote-text">"I cant believe how much I've gained out of this."</p>
+              <span className="signup-quote-author">Shirley T., 3 months in</span>
             </div>
           </div>
         </section>
