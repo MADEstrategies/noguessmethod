@@ -224,7 +224,13 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
   width:min(1160px, calc(100% - 32px));
   margin:0 auto;
 }
-
+.signup-side-headline{
+  font-family:'Bebas Neue', Impact, Arial, sans-serif;
+  letter-spacing:.02em;
+}
+.step-num{
+  font-family:'Bebas Neue', Impact, Arial, sans-serif;
+}
 /* ── Card ── */
 .card{
   border:1px solid var(--line);
