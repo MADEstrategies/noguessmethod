@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const GRADIENTS = [
   'linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%)',
@@ -9,6 +10,7 @@ const GRADIENTS = [
 ]
 
 export default function CourseCard({
+  id = null,
   title = 'Course Title',
   meta = '0 Videos · 0 min',
   tag = 'Free',
@@ -19,6 +21,7 @@ export default function CourseCard({
   onSave = null,
 }) {
   const [saved, setSaved] = useState(save)
+  const navigate = useNavigate()
 
   const tagClass =
     tag === 'Premium'    ? 'course-tag premium' :
@@ -31,14 +34,23 @@ export default function CourseCard({
     ? { backgroundImage: `url('${bgImg}')` }
     : { background: GRADIENTS[gradientIndex % GRADIENTS.length] }
 
-  function handleSave() {
+  function handleSave(e) {
+    e.stopPropagation()
     if (locked) return
     setSaved(s => !s)
     if (onSave) onSave()
   }
 
+  function handleClick() {
+    if (id) navigate(`/courses/${id}`)
+  }
+
   return (
-    <div className={`course-card${locked ? ' locked' : ''}`}>
+    <div
+      className={`course-card${locked ? ' locked' : ''}${id ? ' clickable' : ''}`}
+      onClick={handleClick}
+      style={id ? { cursor: 'pointer' } : {}}
+    >
       <div className="course-card-img" style={bgStyle}>
         {!bgImg && (
           <div className="course-card-placeholder">
@@ -48,7 +60,6 @@ export default function CourseCard({
           </div>
         )}
 
-        {/* Lock overlay for non-premium */}
         {locked && (
           <div className="course-lock-overlay">
             <div className="course-lock-icon">
@@ -60,7 +71,6 @@ export default function CourseCard({
           </div>
         )}
 
-        {/* Save button — hidden when locked */}
         {!locked && (
           <button
             className={`course-save-btn ${saved ? 'saved' : ''}`}
