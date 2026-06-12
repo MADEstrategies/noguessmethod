@@ -15,6 +15,7 @@ export default function CourseCard({
   bgImg = null,
   gradientIndex = 0,
   save = false,
+  locked = false,
   onSave = null,
 }) {
   const [saved, setSaved] = useState(save)
@@ -31,12 +32,13 @@ export default function CourseCard({
     : { background: GRADIENTS[gradientIndex % GRADIENTS.length] }
 
   function handleSave() {
+    if (locked) return
     setSaved(s => !s)
     if (onSave) onSave()
   }
 
   return (
-    <div className="course-card">
+    <div className={`course-card${locked ? ' locked' : ''}`}>
       <div className="course-card-img" style={bgStyle}>
         {!bgImg && (
           <div className="course-card-placeholder">
@@ -45,17 +47,34 @@ export default function CourseCard({
             </svg>
           </div>
         )}
-        <button
-          className={`course-save-btn ${saved ? 'saved' : ''}`}
-          onClick={handleSave}
-          aria-label={saved ? 'Unsave' : 'Save'}
-          type="button"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-        </button>
+
+        {/* Lock overlay for non-premium */}
+        {locked && (
+          <div className="course-lock-overlay">
+            <div className="course-lock-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+          </div>
+        )}
+
+        {/* Save button — hidden when locked */}
+        {!locked && (
+          <button
+            className={`course-save-btn ${saved ? 'saved' : ''}`}
+            onClick={handleSave}
+            aria-label={saved ? 'Unsave' : 'Save'}
+            type="button"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+        )}
       </div>
+
       <div className="course-card-body">
         <p className="course-card-title">{title}</p>
         <p className="course-card-meta">{meta}</p>
