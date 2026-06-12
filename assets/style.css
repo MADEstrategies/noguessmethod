@@ -1212,7 +1212,15 @@ option{background:#111;color:#fff}
   flex-shrink:0;
 }
 .macros-note-val{color:var(--muted);font-size:13px;text-align:right}
-
+/* ── Home CTA ── */
+.home-cta-card{
+  padding:52px;
+  text-align:center;
+  max-width:680px;
+  margin:0 auto;
+}
+.home-cta-card .lead{margin-left:auto;margin-right:auto}
+.home-cta-card .actions{justify-content:center}
 /* ── Scroll-reveal utility ── */
 .fade-in{
   opacity:0;
