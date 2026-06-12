@@ -62,8 +62,8 @@ export default function Home() {
                 </div>
               </div>
               <div className="signup-quote">
-                <p className="signup-quote-text">"I went from randomly lifting to actually having a plan. My numbers have gone up every single week."</p>
-                <span className="signup-quote-author">Alex M., 3 months in</span>
+                <p className="signup-quote-text">"I've been to every gym in my area, and nothing has been up to par as NoGuessMethod."</p>
+                <span className="signup-quote-author">Laura A., 2 months in</span>
               </div>
             </div>
           </section>
