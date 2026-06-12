@@ -1493,13 +1493,14 @@ option{background:#111;color:#fff}
 .pref-phone{margin-top:4px}
 
 /* Right panel */
+}
 .signup-side{
   position:relative;
   overflow:hidden;
   padding:0;
   display:flex;
   flex-direction:column;
-  min-height:600px;
+  min-height:100%;
 }
 .signup-side-bg{
   position:absolute;
