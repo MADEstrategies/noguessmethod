@@ -19,7 +19,6 @@ export default function Home() {
               <Link className="btn primary" to="/signup">Start Free</Link>
               <a className="btn" href="#how">See How It Works</a>
             </div>
-            <Link className="sub-link" to="/free">Already lifting? Jump to the Free Board</Link>
             <div className="feature-row">
               <div className="mini"><strong>Daily Program</strong><span>A new structured workout every day. Push, Pull, Legs, Core, Recovery.</span></div>
               <div className="mini"><strong>Clear Progression</strong><span>Know exactly when to add weight and when to hold. No more guessing.</span></div>
