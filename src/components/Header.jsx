@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
   const { session, signOut } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate  = useNavigate()
+  const location  = useLocation()
   const [open, setOpen] = useState(false)
 
   useEffect(() => { setOpen(false) }, [location.pathname])
-
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -20,36 +19,34 @@ export default function Header() {
     navigate('/')
   }
 
-// Replace the navLinks const in your Header.jsx with this:
-
-const navLinks = (
-  <>
-    {!session && <Link to="/free">Free Board</Link>}
-    {!session && <Link to="/signup">Sign Up</Link>}
-    {!session && <Link to="/login" className="primary">Login</Link>}
-    {session && <Link to="/workout">Today's Workout</Link>}
-    {session && <Link to="/courses">Courses</Link>}
-    {session && <Link to="/macros">Macros</Link>}
-    {session && <Link to="/account" className="primary">Member Hub</Link>}
-    {session && (
-      <button type="button" className="logout-button" onClick={handleLogout}>
-        Log Out
-      </button>
-    )}
-  </>
-)
+  const navLinks = (
+    <>
+      {!session && <Link to="/signup">Sign Up</Link>}
+      {!session && <Link to="/login" className="primary">Login</Link>}
+      {session && <Link to="/workout">Today's Workout</Link>}
+      {session && <Link to="/courses">Courses</Link>}
+      {session && <Link to="/macros">Macros</Link>}
+      {session && <Link to="/account" className="primary">Member Hub</Link>}
+      {session && (
+        <button type="button" className="logout-button" onClick={handleLogout}>
+          Log Out
+        </button>
+      )}
+    </>
+  )
 
   return (
     <header className="site-header">
       <Link to="/" className="brand" aria-label="NoGuessMethod home">
         <img src="/assets/ngm-logo-square.jpeg" alt="NGM" className="logo-square" />
       </Link>
+
       {/* Desktop nav */}
       <nav className="nav">
         {navLinks}
       </nav>
 
-      {/* Hamburger button */}
+      {/* Hamburger */}
       <button
         type="button"
         className={`hamburger${open ? ' open' : ''}`}
@@ -57,21 +54,17 @@ const navLinks = (
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
       >
-        <span />
-        <span />
-        <span />
+        <span /><span /><span />
       </button>
 
-      {/* Mobile nav overlay */}
+      {/* Mobile nav */}
       <div className={`mobile-nav${open ? ' open' : ''}`} aria-hidden={!open}>
         <button
           type="button"
           className="mobile-nav-close"
           onClick={() => setOpen(false)}
           aria-label="Close menu"
-        >
-          ✕
-        </button>
+        >✕</button>
         <nav className="mobile-nav-links" onClick={() => setOpen(false)}>
           {navLinks}
         </nav>
