@@ -219,11 +219,7 @@ export default function CoursePage() {
               <div className="course-progress-fill" style={{ width: `${progress}%` }} />
             </div>
           )}
-          {isFree && (
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--soft)' }}>
-              Videos courtesy of MIT OpenCourseWare under CC BY-NC-SA 4.0
-            </p>
-          )}
+
         </div>
 
         {videos.length === 0 ? (
