@@ -111,33 +111,27 @@ export default function ReminderSettings({ userId }) {
   const normalizedPhone = normalizePhoneClient(phone)
   const phoneVerified   = !!verifiedPhone && normalizedPhone === verifiedPhone
 
-  // Auto-detect timezone
-  useEffect(() => {
-    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const match    = TIMEZONES.find(tz => tz.value === detected)
-    if (match) setTimezone(detected)
-  }, [])
 
   // Load existing settings
-  useEffect(() => {
-    if (!userId) return
-    supabase
-      .from('profiles')
-      .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number, phone_verified')
-      .eq('id', userId)
-      .single()
-      .then(({ data }) => {
-        if (!data) return
-        setEmailEnabled(data.reminder_email_enabled ?? false)
-        setSmsEnabled(data.reminder_sms_enabled ?? false)
-        setPhone(data.phone_number ?? '')
-        setVerifiedPhone(data.phone_verified ? (data.phone_number ?? null) : null)
-        const tz = data.reminder_timezone ?? 'America/New_York'
-        setTimezone(tz)
-        if (data.reminder_time) setTime(utcTimeToLocal(data.reminder_time, tz))
-        setLoaded(true)
-      })
-  }, [userId])
+ useEffect(() => {
+  if (!userId) return
+  supabase
+    .from('profiles')
+    .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number, phone_verified')
+    .eq('id', userId)
+    .single()
+    .then(({ data }) => {
+      if (!data) return
+      setEmailEnabled(data.reminder_email_enabled ?? false)
+      setSmsEnabled(data.reminder_sms_enabled ?? false)
+      setPhone(data.phone_number ?? '')
+      setVerifiedPhone(data.phone_verified ? (data.phone_number ?? null) : null)
+      const tz = data.reminder_timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'America/New_York'
+      setTimezone(tz)
+      if (data.reminder_time) setTime(utcTimeToLocal(data.reminder_time, tz))
+      setLoaded(true)
+    })
+}, [userId])
 
   async function authToken() {
     const { data: { session } } = await supabase.auth.getSession()
