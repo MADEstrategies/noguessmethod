@@ -20,9 +20,9 @@ function generateTimeSlots() {
   const slots = []
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += 15) {
-      const hh    = String(h).padStart(2, '0')
-      const mm    = String(m).padStart(2, '0')
-      const value = `${hh}:${mm}`
+      const hh     = String(h).padStart(2, '0')
+      const mm     = String(m).padStart(2, '0')
+      const value  = `${hh}:${mm}`
       const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h
       const ampm   = h < 12 ? 'AM' : 'PM'
       const label  = `${hour12}:${mm} ${ampm}`
@@ -34,40 +34,43 @@ function generateTimeSlots() {
 
 const TIME_SLOTS = generateTimeSlots()
 
+// Convert local HH:MM in a given timezone to UTC HH:MM
+// Strategy: find the UTC offset by converting a known UTC time to local,
+// then apply the inverse offset to the user's chosen time.
 function localTimeToUTC(timeStr, timezone) {
   const [hh, mm] = timeStr.split(':').map(Number)
   const now = new Date()
-  // Build an ISO string as if this time is in the user's timezone
-  const year  = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day   = String(now.getDate()).padStart(2, '0')
-  const hours = String(hh).padStart(2, '0')
-  const mins  = String(mm).padStart(2, '0')
-  // Use Intl to find what UTC time corresponds to this local time
-  const localISO = `${year}-${month}-${day}T${hours}:${mins}:00`
-  const utcDate  = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: 'UTC' }))
-  const tzDate   = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: timezone }))
-  const diff     = tzDate.getTime() - utcDate.getTime()
-  const result   = new Date(new Date(localISO).getTime() - diff)
-  return `${String(result.getUTCHours()).padStart(2,'0')}:${String(result.getUTCMinutes()).padStart(2,'0')}`
+  const dateStr = now.toLocaleDateString('en-CA', { timeZone: timezone }) // YYYY-MM-DD
+  // Use noon UTC as reference — convert to local to find offset
+  const testDate = new Date(`${dateStr}T12:00:00Z`)
+  const localStr = testDate.toLocaleTimeString('en-US', {
+    timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false,
+  })
+  const [localH, localM] = localStr.split(':').map(Number)
+  const offsetMins = (12 * 60) - (localH * 60 + localM)
+  const utcMins = hh * 60 + mm + offsetMins
+  const normalized = ((utcMins % 1440) + 1440) % 1440
+  const utcH = Math.floor(normalized / 60)
+  const utcM = normalized % 60
+  return `${String(utcH).padStart(2, '0')}:${String(utcM).padStart(2, '0')}`
 }
 
+// Convert stored UTC HH:MM back to local time in the given timezone
 function utcTimeToLocal(utcStr, timezone) {
   if (!utcStr) return '07:00'
   const [hh, mm] = utcStr.split(':').map(Number)
   const now = new Date()
   const utcDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm))
-  const local   = utcDate.toLocaleTimeString('en-US', {
+  const local = utcDate.toLocaleTimeString('en-US', {
     timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false,
   })
   const [lh, lm] = local.slice(0, 5).split(':').map(Number)
-  const snapped  = Math.round(lm / 15) * 15
-  const finalM   = snapped === 60 ? 0 : snapped
-  const finalH   = snapped === 60 ? (lh + 1) % 24 : lh
-  return `${String(finalH).padStart(2,'0')}:${String(finalM).padStart(2,'0')}`
+  const snapped = Math.round(lm / 15) * 15
+  const finalM  = snapped === 60 ? 0 : snapped
+  const finalH  = snapped === 60 ? (lh + 1) % 24 : lh
+  return `${String(finalH).padStart(2, '0')}:${String(finalM).padStart(2, '0')}`
 }
 
-// Mirror of the server-side normalizer in the verification functions.
 function normalizePhoneClient(raw) {
   if (!raw) return null
   const p = String(raw).trim().replace(/[\s\-().]/g, '')
@@ -95,43 +98,44 @@ function Toggle({ on, onToggle }) {
 }
 
 export default function ReminderSettings({ userId }) {
-  const [emailEnabled, setEmailEnabled] = useState(false)
-  const [smsEnabled,   setSmsEnabled]   = useState(false)
-  const [time,         setTime]         = useState('07:00')
-  const [timezone,     setTimezone]     = useState('America/New_York')
-  const [phone,        setPhone]        = useState('')
+  const [emailEnabled,  setEmailEnabled]  = useState(false)
+  const [smsEnabled,    setSmsEnabled]    = useState(false)
+  const [time,          setTime]          = useState('07:00')
+  const [timezone,      setTimezone]      = useState('America/New_York')
+  const [phone,         setPhone]         = useState('')
   const [verifiedPhone, setVerifiedPhone] = useState(null)
-  const [code,         setCode]         = useState('')
-  const [verifyStep,   setVerifyStep]   = useState('idle') // idle | code-sent
-  const [verifyState,  setVerifyState]  = useState('idle') // idle | sending | checking
-  const [verifyMsg,    setVerifyMsg]    = useState({ msg: '', ok: null })
-  const [status,       setStatus]       = useState('idle') // idle | saving | saved | error
-  const [loaded,       setLoaded]       = useState(false)
+  const [code,          setCode]          = useState('')
+  const [verifyStep,    setVerifyStep]    = useState('idle')
+  const [verifyState,   setVerifyState]   = useState('idle')
+  const [verifyMsg,     setVerifyMsg]     = useState({ msg: '', ok: null })
+  const [status,        setStatus]        = useState('idle')
+  const [loaded,        setLoaded]        = useState(false)
 
   const normalizedPhone = normalizePhoneClient(phone)
   const phoneVerified   = !!verifiedPhone && normalizedPhone === verifiedPhone
 
-
-  // Load existing settings
- useEffect(() => {
-  if (!userId) return
-  supabase
-    .from('profiles')
-    .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number, phone_verified')
-    .eq('id', userId)
-    .single()
-    .then(({ data }) => {
-      if (!data) return
-      setEmailEnabled(data.reminder_email_enabled ?? false)
-      setSmsEnabled(data.reminder_sms_enabled ?? false)
-      setPhone(data.phone_number ?? '')
-      setVerifiedPhone(data.phone_verified ? (data.phone_number ?? null) : null)
-      const tz = data.reminder_timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'America/New_York'
-      setTimezone(tz)
-      if (data.reminder_time) setTime(utcTimeToLocal(data.reminder_time, tz))
-      setLoaded(true)
-    })
-}, [userId])
+  // Load existing settings — auto-detect timezone only if none saved
+  useEffect(() => {
+    if (!userId) return
+    supabase
+      .from('profiles')
+      .select('reminder_email_enabled, reminder_sms_enabled, reminder_time, reminder_timezone, phone_number, phone_verified')
+      .eq('id', userId)
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        setEmailEnabled(data.reminder_email_enabled ?? false)
+        setSmsEnabled(data.reminder_sms_enabled ?? false)
+        setPhone(data.phone_number ?? '')
+        setVerifiedPhone(data.phone_verified ? (data.phone_number ?? null) : null)
+        const tz = data.reminder_timezone
+          ?? Intl.DateTimeFormat().resolvedOptions().timeZone
+          ?? 'America/New_York'
+        setTimezone(tz)
+        if (data.reminder_time) setTime(utcTimeToLocal(data.reminder_time, tz))
+        setLoaded(true)
+      })
+  }, [userId])
 
   async function authToken() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -208,6 +212,7 @@ export default function ReminderSettings({ userId }) {
     }
     setStatus('saving')
     const utcTime = localTimeToUTC(time, timezone)
+    console.log(`Saving reminder: local=${time} tz=${timezone} utc=${utcTime}`)
     const { error } = await supabase
       .from('profiles')
       .update({
@@ -243,9 +248,7 @@ export default function ReminderSettings({ userId }) {
       <div className="reminder-toggle-row">
         <div>
           <strong style={{ fontSize: 15 }}>Email reminder</strong>
-          <p style={{ margin: '3px 0 0', fontSize: 13, color: 'var(--muted)' }}>
-            Daily email with your workout.
-          </p>
+          <p style={{ margin: '3px 0 0', fontSize: 13, color: 'var(--muted)' }}>Daily email with your workout.</p>
         </div>
         <Toggle on={emailEnabled} onToggle={() => setEmailEnabled(e => !e)} />
       </div>
@@ -254,14 +257,12 @@ export default function ReminderSettings({ userId }) {
       <div className="reminder-toggle-row" style={{ marginTop: 14 }}>
         <div>
           <strong style={{ fontSize: 15 }}>SMS reminder</strong>
-          <p style={{ margin: '3px 0 0', fontSize: 13, color: 'var(--muted)' }}>
-            Text message to your phone.
-          </p>
+          <p style={{ margin: '3px 0 0', fontSize: 13, color: 'var(--muted)' }}>Text message to your phone.</p>
         </div>
         <Toggle on={smsEnabled} onToggle={() => setSmsEnabled(s => !s)} />
       </div>
 
-      {/* Phone number + verification */}
+      {/* Phone + verification */}
       {smsEnabled && (
         <div style={{ marginTop: 14 }}>
           <label>
@@ -275,7 +276,7 @@ export default function ReminderSettings({ userId }) {
             />
           </label>
           <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--soft)' }}>
-            Include country code, e.g. +1 for US. We'll text you a code to confirm it's yours.
+            Include country code, e.g. +1 for US.
           </p>
 
           {phoneVerified ? (
@@ -283,12 +284,7 @@ export default function ReminderSettings({ userId }) {
           ) : (
             <div style={{ marginTop: 10 }}>
               {verifyStep === 'idle' ? (
-                <button
-                  className="btn"
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={verifyState === 'sending'}
-                >
+                <button className="btn" type="button" onClick={handleSendCode} disabled={verifyState === 'sending'}>
                   {verifyState === 'sending' ? 'Sending...' : 'Send code'}
                 </button>
               ) : (
@@ -305,20 +301,10 @@ export default function ReminderSettings({ userId }) {
                       style={{ marginTop: 6 }}
                     />
                   </label>
-                  <button
-                    className="btn primary"
-                    type="button"
-                    onClick={handleVerifyCode}
-                    disabled={verifyState === 'checking'}
-                  >
+                  <button className="btn primary" type="button" onClick={handleVerifyCode} disabled={verifyState === 'checking'}>
                     {verifyState === 'checking' ? 'Verifying...' : 'Verify'}
                   </button>
-                  <button
-                    className="btn"
-                    type="button"
-                    onClick={handleSendCode}
-                    disabled={verifyState === 'sending'}
-                  >
+                  <button className="btn" type="button" onClick={handleSendCode} disabled={verifyState === 'sending'}>
                     Resend
                   </button>
                 </div>
