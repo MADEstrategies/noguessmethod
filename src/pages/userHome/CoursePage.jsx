@@ -111,7 +111,10 @@ export default function CoursePage() {
                         profile?.subscription === 'canceling' ||
                         profile?.role === 'admin'
         setIsPremium(premium)
-
+if (!premium && courseData.tag === 'Premium') {
+  navigate('/upgrade')
+  return
+}
         // Fetch watched videos
         const { data: progressData } = await supabase
           .from('video_progress')
