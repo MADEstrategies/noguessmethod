@@ -22,6 +22,7 @@ import CoursePage from './pages/userHome/CoursePage'
 import Workouts from './pages/userHome/Workouts'
 import Store from './pages/userHome/Store'
 import Library from './pages/userHome/Library'
+import WorkoutPage from './pages/userHome/WorkoutPage'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -47,6 +48,7 @@ function AnimatedRoutes() {
         <Route path="/success"   element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
         <Route path="/admin"     element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="*"          element={<NotFound />} />
+        <Route path="/workouts/:id" element={<ProtectedRoute><WorkoutPage /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   )
