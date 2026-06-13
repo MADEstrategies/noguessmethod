@@ -37,12 +37,19 @@ const TIME_SLOTS = generateTimeSlots()
 function localTimeToUTC(timeStr, timezone) {
   const [hh, mm] = timeStr.split(':').map(Number)
   const now = new Date()
-  const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0)
-  const utcDate   = new Date(localDate.toLocaleString('en-US', { timeZone: 'UTC' }))
-  const tzDate    = new Date(localDate.toLocaleString('en-US', { timeZone: timezone }))
-  const diff      = utcDate.getTime() - tzDate.getTime()
-  const utc       = new Date(localDate.getTime() + diff)
-  return `${String(utc.getHours()).padStart(2,'0')}:${String(utc.getMinutes()).padStart(2,'0')}`
+  // Build an ISO string as if this time is in the user's timezone
+  const year  = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day   = String(now.getDate()).padStart(2, '0')
+  const hours = String(hh).padStart(2, '0')
+  const mins  = String(mm).padStart(2, '0')
+  // Use Intl to find what UTC time corresponds to this local time
+  const localISO = `${year}-${month}-${day}T${hours}:${mins}:00`
+  const utcDate  = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: 'UTC' }))
+  const tzDate   = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: timezone }))
+  const diff     = tzDate.getTime() - utcDate.getTime()
+  const result   = new Date(new Date(localISO).getTime() - diff)
+  return `${String(result.getUTCHours()).padStart(2,'0')}:${String(result.getUTCMinutes()).padStart(2,'0')}`
 }
 
 function utcTimeToLocal(utcStr, timezone) {
