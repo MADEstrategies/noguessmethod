@@ -108,7 +108,10 @@ export default function WorkoutPage() {
                         profile?.subscription === 'canceling' ||
                         profile?.role === 'admin'
         setIsPremium(premium)
-
+if (!premium && courseData.tag === 'Premium') {
+  navigate('/upgrade')
+  return
+}
         const { data: progressData } = await supabase
           .from('workout_video_progress')
           .select('video_id')
