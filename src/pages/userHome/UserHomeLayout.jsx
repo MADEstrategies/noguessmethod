@@ -18,6 +18,7 @@ export default function UserHomeLayout({ children, title }) {
     <>
       <Header />
       <div className="uhome-wrap">
+
         {/* Sidebar */}
         <aside className="uhome-sidebar">
           <div className="uhome-search-wrap">
@@ -37,7 +38,7 @@ export default function UserHomeLayout({ children, title }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`uhome-nav-link ${location.pathname === item.to ? 'active' : ''}`}
+                className={`uhome-nav-link${location.pathname.startsWith(item.to) ? ' active' : ''}`}
               >
                 {item.label}
               </Link>
@@ -48,11 +49,11 @@ export default function UserHomeLayout({ children, title }) {
         {/* Main */}
         <main className="uhome-main">
           <div className="uhome-main-header">
-            <div className="eyebrow">{title}</div>
             <h2>{title}.</h2>
           </div>
           {children}
         </main>
+
       </div>
       <Footer />
     </>
