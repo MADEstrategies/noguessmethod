@@ -4,14 +4,47 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import UserHomeLayout from './UserHomeLayout'
 
+// Determine if a video source is a YouTube ID or a direct URL
+function isDirectUrl(src) {
+  return src && (src.startsWith('http') || src.startsWith('/'))
+}
+
 function VideoPlayer({ video, watched, onWatch }) {
   const [started, setStarted] = useState(false)
+  const direct = isDirectUrl(video.youtube_id)
 
   function handlePlay() {
     setStarted(true)
     if (!watched) onWatch()
   }
 
+  if (direct) {
+    // Direct MP4 or external URL
+    return (
+      <div className="course-video-wrap">
+        {!started ? (
+          <div className="course-video-thumb" onClick={handlePlay}>
+            <div className="course-video-play">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            {watched && <div className="course-video-watched-badge">✓ Watched</div>}
+          </div>
+        ) : (
+          <video
+            className="course-video-iframe"
+            src={video.youtube_id}
+            controls
+            autoPlay
+            onPlay={() => { if (!watched) onWatch() }}
+          />
+        )}
+      </div>
+    )
+  }
+
+  // YouTube embed
   return (
     <div className="course-video-wrap">
       {!started ? (
@@ -26,9 +59,7 @@ function VideoPlayer({ video, watched, onWatch }) {
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
           </div>
-          {watched && (
-            <div className="course-video-watched-badge">✓ Watched</div>
-          )}
+          {watched && <div className="course-video-watched-badge">✓ Watched</div>}
         </div>
       ) : (
         <iframe
@@ -44,15 +75,18 @@ function VideoPlayer({ video, watched, onWatch }) {
 }
 
 function LockedVideo({ video }) {
+  const direct = isDirectUrl(video.youtube_id)
   return (
     <div className="course-video-wrap">
       <div className="course-video-locked">
-        <img
-          src={`https://img.youtube.com/vi/${video.youtube_id}/maxresdefault.jpg`}
-          alt={video.title}
-          className="course-video-thumb-img"
-          style={{ filter: 'blur(4px) brightness(0.4)' }}
-        />
+        {!direct && (
+          <img
+            src={`https://img.youtube.com/vi/${video.youtube_id}/maxresdefault.jpg`}
+            alt={video.title}
+            className="course-video-thumb-img"
+            style={{ filter: 'blur(4px) brightness(0.4)' }}
+          />
+        )}
         <div className="course-video-lock-msg">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -73,14 +107,13 @@ export default function CoursePage() {
 
   const [course,    setCourse]    = useState(null)
   const [videos,    setVideos]    = useState([])
-  const [watched,   setWatched]   = useState([]) // video_ids user has watched
+  const [watched,   setWatched]   = useState([])
   const [isPremium, setIsPremium] = useState(false)
   const [activeIdx, setActiveIdx] = useState(0)
   const [loading,   setLoading]   = useState(true)
 
   useEffect(() => {
     async function load() {
-      // Fetch course
       const { data: courseData } = await supabase
         .from('courses')
         .select('*')
@@ -90,7 +123,6 @@ export default function CoursePage() {
       if (!courseData) { navigate('/courses'); return }
       setCourse(courseData)
 
-      // Fetch videos
       const { data: videoData } = await supabase
         .from('course_videos')
         .select('*')
@@ -100,7 +132,6 @@ export default function CoursePage() {
       setVideos(videoData ?? [])
 
       if (session) {
-        // Check premium
         const { data: profile } = await supabase
           .from('profiles')
           .select('subscription, role')
@@ -111,11 +142,13 @@ export default function CoursePage() {
                         profile?.subscription === 'canceling' ||
                         profile?.role === 'admin'
         setIsPremium(premium)
-if (!premium && courseData.tag === 'Premium') {
-  navigate('/upgrade')
-  return
-}
-        // Fetch watched videos
+
+        // Redirect free users away from premium courses
+        if (!premium && courseData.tag === 'Premium') {
+          navigate('/upgrade')
+          return
+        }
+
         const { data: progressData } = await supabase
           .from('video_progress')
           .select('video_id')
@@ -131,10 +164,9 @@ if (!premium && courseData.tag === 'Premium') {
   }, [id, session])
 
   async function handleWatch(videoId) {
-    if (!session || !isPremium) return
+    if (!session) return
     if (watched.includes(videoId)) return
 
-    // Mark video as watched
     await supabase.from('video_progress').insert({
       user_id:   session.user.id,
       video_id:  videoId,
@@ -144,7 +176,6 @@ if (!premium && courseData.tag === 'Premium') {
     const newWatched = [...watched, videoId]
     setWatched(newWatched)
 
-    // Update library status
     const allWatched = videos.every(v => newWatched.includes(v.id))
     const status = allWatched ? 'completed' : 'inprogress'
 
@@ -167,28 +198,31 @@ if (!premium && courseData.tag === 'Premium') {
 
   const activeVideo = videos[activeIdx]
   const progress = videos.length > 0 ? Math.round((watched.length / videos.length) * 100) : 0
+  const isFree = course?.tag === 'Free'
 
   return (
     <UserHomeLayout title="Courses">
       <div className="course-page">
-
-        {/* Back link */}
         <Link to="/courses" className="course-back">← Back to Courses</Link>
 
-        {/* Course header */}
         <div className="course-page-header">
           <h2 style={{ margin: 0 }}>{course.title}</h2>
           <div className="course-page-meta">
             <span className={`course-tag ${course.tag === 'Premium' ? 'premium' : 'free'}`}>{course.tag}</span>
             <span style={{ fontSize: 13, color: 'var(--muted)' }}>{videos.length} Videos</span>
-            {isPremium && videos.length > 0 && (
+            {videos.length > 0 && (
               <span style={{ fontSize: 13, color: 'var(--muted)' }}>{progress}% complete</span>
             )}
           </div>
-          {isPremium && videos.length > 0 && (
+          {videos.length > 0 && (
             <div className="course-progress-bar">
               <div className="course-progress-fill" style={{ width: `${progress}%` }} />
             </div>
+          )}
+          {isFree && (
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--soft)' }}>
+              Videos courtesy of MIT OpenCourseWare under CC BY-NC-SA 4.0
+            </p>
           )}
         </div>
 
@@ -198,8 +232,7 @@ if (!premium && courseData.tag === 'Premium') {
           </div>
         ) : (
           <div className="course-layout">
-
-            {/* Video sidebar */}
+            {/* Sidebar */}
             <div className="course-sidebar">
               {videos.map((v, i) => (
                 <button
@@ -220,9 +253,9 @@ if (!premium && courseData.tag === 'Premium') {
               ))}
             </div>
 
-            {/* Main content */}
+            {/* Main */}
             <div className="course-main">
-              {isPremium ? (
+              {isFree || isPremium ? (
                 <VideoPlayer
                   video={activeVideo}
                   watched={watched.includes(activeVideo.id)}
@@ -243,7 +276,6 @@ if (!premium && courseData.tag === 'Premium') {
                 )}
               </div>
             </div>
-
           </div>
         )}
       </div>
