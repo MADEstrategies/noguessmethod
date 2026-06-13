@@ -1,19 +1,18 @@
 const { createClient } = require('@supabase/supabase-js');
-
 const SCHEDULE = require('../../src/data/schedule.json');
 
 const WORKOUT_INFO = {
-  'push-a':   { label: 'Push Day A',          focus: 'Chest · Shoulders · Triceps' },
-  'pull-a':   { label: 'Pull Day A',           focus: 'Back · Biceps · Rear Delts' },
-  'legs-a':   { label: 'Legs Day A',           focus: 'Quads · Hamstrings · Glutes' },
-  'core':     { label: 'Core & Mobility Day',  focus: 'Stability · Anti-Rotation · Flexibility' },
-  'push-b':   { label: 'Push Day B',           focus: 'Chest · Shoulders · Triceps (Volume)' },
-  'pull-b':   { label: 'Pull Day B',           focus: 'Back · Biceps (Strength + Stretch)' },
-  'legs-b':   { label: 'Legs Day B',           focus: 'Quads · Glutes · Hamstrings (Accessory)' },
-  'recovery': { label: 'Active Recovery',      focus: 'Cardio · Mobility · Blood Flow' },
+  'push-a':   { label: 'Push Day A',         focus: 'Chest · Shoulders · Triceps' },
+  'pull-a':   { label: 'Pull Day A',          focus: 'Back · Biceps · Rear Delts' },
+  'legs-a':   { label: 'Legs Day A',          focus: 'Quads · Hamstrings · Glutes' },
+  'core':     { label: 'Core & Mobility Day', focus: 'Stability · Anti-Rotation · Flexibility' },
+  'push-b':   { label: 'Push Day B',          focus: 'Chest · Shoulders · Triceps (Volume)' },
+  'pull-b':   { label: 'Pull Day B',          focus: 'Back · Biceps (Strength + Stretch)' },
+  'legs-b':   { label: 'Legs Day B',          focus: 'Quads · Glutes · Hamstrings (Accessory)' },
+  'recovery': { label: 'Active Recovery',     focus: 'Cardio · Mobility · Blood Flow' },
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getTodayIndex(joinedAt) {
   const start = new Date(joinedAt);
@@ -24,28 +23,14 @@ function getTodayIndex(joinedAt) {
   return days % SCHEDULE.length;
 }
 
-function localTimeToUTC(timeStr, timezone) {
-  const [hh, mm] = timeStr.split(':').map(Number)
-  const now = new Date()
-  const year  = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day   = String(now.getDate()).padStart(2, '0')
-  const hours = String(hh).padStart(2, '0')
-  const mins  = String(mm).padStart(2, '0')
-  const localISO = `${year}-${month}-${day}T${hours}:${mins}:00`
-  const utcDate  = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: 'UTC' }))
-  const tzDate   = new Date(new Date(localISO).toLocaleString('en-US', { timeZone: timezone }))
-  const diff     = tzDate.getTime() - utcDate.getTime()
-  const result   = new Date(new Date(localISO).getTime() - diff)
-  return `${String(result.getUTCHours()).padStart(2,'0')}:${String(result.getUTCMinutes()).padStart(2,'0')}`
-}
-
+// Convert stored UTC HH:MM to the user's local time, then check if it matches now.
+// The stored time is already in UTC so we just compare directly to current UTC.
 function getCurrentUTCTime() {
   const now = new Date();
   return `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}`;
 }
 
-// ─── Email ────────────────────────────────────────────────────────────────────
+// ── Email ─────────────────────────────────────────────────────────────────────
 
 function buildEmailHTML(username, label, focus, siteUrl) {
   return `<!DOCTYPE html>
@@ -60,8 +45,6 @@ function buildEmailHTML(username, label, focus, siteUrl) {
     <tr>
       <td align="center">
         <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
-
-          <!-- Logo -->
           <tr>
             <td style="padding:0 0 24px;">
               <table cellpadding="0" cellspacing="0">
@@ -73,50 +56,35 @@ function buildEmailHTML(username, label, focus, siteUrl) {
               </table>
             </td>
           </tr>
-
-          <!-- Main card -->
           <tr>
             <td style="background:#ffffff;border:1px solid #e5e5e5;border-radius:24px;padding:36px;">
-
               <p style="margin:0 0 20px;font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#888888;">
                 <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#0a0a0a;margin-right:10px;vertical-align:middle;"></span>
                 Today's Program
               </p>
-
               <h1 style="margin:0;font-size:38px;font-weight:900;letter-spacing:-.04em;line-height:.96;text-transform:uppercase;color:#0a0a0a;">
                 ${label.toUpperCase()}
               </h1>
-
               <div style="margin:18px 0 0;display:inline-block;border:1px solid #e5e5e5;background:#f4f4f4;border-radius:999px;padding:7px 15px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555555;">
                 ${focus}
               </div>
-
               <hr style="border:0;border-top:1px solid #eeeeee;margin:28px 0;"/>
-
               <p style="margin:0 0 28px;font-size:16px;color:#555555;line-height:1.6;">
                 Hey ${username} — your program is ready. Stop guessing, start progressing.
               </p>
-
-              <a href="${siteUrl}/workout"
-                 style="display:inline-block;background:#0a0a0a;color:#ffffff;font-size:14px;font-weight:700;padding:14px 28px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
+              <a href="${siteUrl}/workout" style="display:inline-block;background:#0a0a0a;color:#ffffff;font-size:14px;font-weight:700;padding:14px 28px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
                 View Today's Workout →
               </a>
-
             </td>
           </tr>
-
-          <!-- Footer -->
           <tr>
             <td style="padding:24px 0 0;text-align:center;">
               <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
                 You're receiving this because you enabled workout reminders.<br/>
-                <a href="${siteUrl}/settings" style="color:#888888;text-decoration:underline;">
-                  Manage reminder settings
-                </a>
+                <a href="${siteUrl}/settings" style="color:#888888;text-decoration:underline;">Manage reminder settings</a>
               </p>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -125,14 +93,14 @@ function buildEmailHTML(username, label, focus, siteUrl) {
 </html>`;
 }
 
-// ─── SMS ────────────────────────────────────────────────────────────────────
+// ── SMS ───────────────────────────────────────────────────────────────────────
 
 function buildSMSBody(username, label, focus, siteUrl) {
   return [
-    `NGM Daily Reminder`,
-    `Hey ${username} — today is ${label}.`,
+    `NoGuessMethod`,
+    `Hey ${username}, today's workout is ${label}.`,
     `${focus}`,
-    `${siteUrl}/workout`,
+    `View it here: ${siteUrl}/workout`,
     `Reply STOP to unsubscribe.`,
   ].join('\n');
 }
@@ -156,7 +124,7 @@ async function sendSMS({ to, username, label, focus, siteUrl, accountSid, authTo
   }
 }
 
-// ─── Email ──────────────────────────────────────────────────────────────────
+// ── Email sender ───────────────────────────────────────────────────────────────
 
 async function sendEmail({ to, username, label, focus, siteUrl, resendKey }) {
   const res = await fetch('https://api.resend.com/emails', {
@@ -178,7 +146,7 @@ async function sendEmail({ to, username, label, focus, siteUrl, resendKey }) {
   }
 }
 
-// ─── Handler ─────────────────────────────────────────────────────────────────
+// ── Handler ───────────────────────────────────────────────────────────────────
 
 exports.handler = async () => {
   const sb = createClient(
@@ -192,7 +160,9 @@ exports.handler = async () => {
   const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
   const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
+  // Current UTC time as HH:MM
   const currentUTC = getCurrentUTCTime();
+  console.log(`Running reminders at UTC: ${currentUTC}`);
 
   const { data: users, error } = await sb
     .from('profiles')
@@ -213,15 +183,17 @@ exports.handler = async () => {
   const results = { email: { sent: 0, failed: 0 }, sms: { sent: 0, failed: 0 } };
 
   await Promise.allSettled(users.map(async (user) => {
-    // Strip seconds from stored time e.g. "13:00:00" -> "13:00"
-    const storedTime = (user.reminder_time ?? '').slice(0, 5);
-    const userUTC    = localTimeToUTC(storedTime, user.reminder_timezone ?? 'America/New_York');
+    // reminder_time is already stored in UTC — compare directly to current UTC
+    const storedUTC = (user.reminder_time ?? '').slice(0, 5); // HH:MM
 
-    // Match within a 7-minute window to account for scheduler drift
-    const [uh, um] = userUTC.split(':').map(Number);
+    const [uh, um] = storedUTC.split(':').map(Number);
     const [ch, cm] = currentUTC.split(':').map(Number);
     const userMins = uh * 60 + um;
     const currMins = ch * 60 + cm;
+
+    console.log(`User ${user.username}: stored UTC=${storedUTC}, current UTC=${currentUTC}, diff=${Math.abs(userMins - currMins)}min`);
+
+    // Match within a 7-minute window to account for scheduler drift
     if (Math.abs(userMins - currMins) > 7) return;
 
     const idx     = getTodayIndex(user.joined_at);
@@ -234,11 +206,7 @@ exports.handler = async () => {
         const { data: authUser } = await sb.auth.admin.getUserById(user.id);
         const email = authUser?.user?.email;
         if (email) {
-          await sendEmail({
-            to: email, username: name,
-            label: workout.label, focus: workout.focus,
-            siteUrl: SITE_URL, resendKey: RESEND_KEY,
-          });
+          await sendEmail({ to: email, username: name, label: workout.label, focus: workout.focus, siteUrl: SITE_URL, resendKey: RESEND_KEY });
           results.email.sent++;
           console.log(`Email sent to ${email}`);
         }
@@ -250,12 +218,7 @@ exports.handler = async () => {
 
     if (user.reminder_sms_enabled && user.phone_verified && user.phone_number && TWILIO_SID) {
       try {
-        await sendSMS({
-          to: user.phone_number, username: name,
-          label: workout.label, focus: workout.focus,
-          siteUrl: SITE_URL,
-          accountSid: TWILIO_SID, authToken: TWILIO_AUTH, fromNumber: TWILIO_FROM,
-        });
+        await sendSMS({ to: user.phone_number, username: name, label: workout.label, focus: workout.focus, siteUrl: SITE_URL, accountSid: TWILIO_SID, authToken: TWILIO_AUTH, fromNumber: TWILIO_FROM });
         results.sms.sent++;
         console.log(`SMS sent to ${user.phone_number}`);
       } catch (err) {
@@ -265,6 +228,6 @@ exports.handler = async () => {
     }
   }));
 
-  console.log('Reminders:', JSON.stringify(results));
+  console.log('Reminder results:', JSON.stringify(results));
   return { statusCode: 200, body: JSON.stringify(results) };
 };
