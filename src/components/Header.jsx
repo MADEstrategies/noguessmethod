@@ -15,10 +15,10 @@ export default function Header() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/')
-  }
+const handleLogout = async () => {
+  await signOut()
+  window.location.href = '/'
+}
 
   function navClass(to) {
     const active = path === to || (to !== '/' && path.startsWith(to))
