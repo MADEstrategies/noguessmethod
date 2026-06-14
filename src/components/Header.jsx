@@ -7,8 +7,9 @@ export default function Header() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const [open, setOpen] = useState(false)
+  const path = location.pathname
 
-  useEffect(() => { setOpen(false) }, [location.pathname])
+  useEffect(() => { setOpen(false) }, [path])
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -19,14 +20,19 @@ export default function Header() {
     navigate('/')
   }
 
+  function navClass(to) {
+    const active = path === to || (to !== '/' && path.startsWith(to))
+    return active ? 'primary' : ''
+  }
+
   const navLinks = (
     <>
-      {!session && <Link to="/signup">Sign Up</Link>}
-      {!session && <Link to="/login" className="primary">Login</Link>}
-      {session && <Link to="/workout">Today's Workout</Link>}
-      {session && <Link to="/courses">Courses</Link>}
-      {session && <Link to="/macros">Macros</Link>}
-      {session && <Link to="/account" className="primary">Member Hub</Link>}
+      {!session && <Link to="/signup" className={navClass('/signup')}>Sign Up</Link>}
+      {!session && <Link to="/login"  className={navClass('/login')}>Login</Link>}
+      {session && <Link to="/workout"  className={navClass('/workout')}>Today's Workout</Link>}
+      {session && <Link to="/courses"  className={navClass('/courses')}>Courses</Link>}
+      {session && <Link to="/macros"   className={navClass('/macros')}>Macros</Link>}
+      {session && <Link to="/account"  className={navClass('/account')}>Member Hub</Link>}
       {session && (
         <button type="button" className="logout-button" onClick={handleLogout}>
           Log Out
@@ -41,12 +47,10 @@ export default function Header() {
         <img src="/assets/ngm-logo-square.jpeg" alt="NGM" className="logo-square" />
       </Link>
 
-      {/* Desktop nav */}
       <nav className="nav">
         {navLinks}
       </nav>
 
-      {/* Hamburger */}
       <button
         type="button"
         className={`hamburger${open ? ' open' : ''}`}
@@ -57,7 +61,6 @@ export default function Header() {
         <span /><span /><span />
       </button>
 
-      {/* Mobile nav */}
       <div className={`mobile-nav${open ? ' open' : ''}`} aria-hidden={!open}>
         <button
           type="button"
