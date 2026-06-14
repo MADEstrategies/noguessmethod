@@ -1,516 +1,144 @@
-import { useEffect, useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import PageTransition from '../components/PageTransition'
-import { supabase } from '../lib/supabase'
-import { useAuth } from '../context/AuthContext'
-import { WORKOUTS, SCHEDULE, getTodayIndex, getWeekLabel } from '../data/workouts'
-
-function getLocalDateString() {
-  const d = new Date()
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
+export const WORKOUTS = {
+  'push-a': {
+    label: 'Push Day A',
+    focus: 'Chest · Shoulders · Triceps',
+    exercises: [
+      { name: 'Barbell Bench Press', sets: 4, reps: '6–8', rest: '3 min', muscles: 'Pectoralis major, anterior deltoid, triceps brachii', cue: 'Retract and depress scapulae before unracking. Drive bar off chest explosively. Control the descent for 2 seconds — the eccentric builds as much muscle as the press.', progression: 'Add 5 lb total when all 4 sets reach 8 clean reps. Deload 10% if form breaks down before hitting the top of the range.' },
+      { name: 'Incline Dumbbell Press', sets: 3, reps: '10–12', rest: '2 min', muscles: 'Upper pectoralis major, anterior deltoid, triceps', cue: 'Set bench to 30–45°. Elbows at 45° to torso — do not flare. Press in a slight arc inward at the top. More ROM than barbell variation.', progression: 'Increase by 2.5 lb per side when 3 sets hit 12 reps with full control.' },
+      { name: 'Cable Lateral Raise', sets: 4, reps: '15', rest: '90 sec', muscles: 'Lateral deltoid, supraspinatus', cue: 'Lead with the elbow, not the wrist. Stop at shoulder height. Slight forward lean improves the abduction angle and reduces trap involvement.', progression: 'Small jumps only (1–2 lb). Form is the priority — swinging invalidates the set.' },
+      { name: 'Dumbbell Overhead Press', sets: 3, reps: '10–12', rest: '2 min', muscles: 'Anterior and lateral deltoid, upper trapezius, triceps', cue: 'Brace the core hard. Press from ear height, not in front of face. Avoid excessive lumbar extension — it turns a shoulder exercise into a back exercise.', progression: 'Add 2.5 lb per side when 3 sets hit 12 reps.' },
+      { name: 'Rope Tricep Pushdown', sets: 3, reps: '12–15', rest: '90 sec', muscles: 'Triceps brachii (all three heads)', cue: 'Split the rope at the bottom. Keep upper arms pinned to your sides throughout — any movement of the elbows reduces tricep isolation.', progression: 'Add 5 lb when 3 sets hit 15 reps comfortably.' },
+      { name: 'Overhead Tricep Extension (EZ Bar)', sets: 3, reps: '12', rest: '90 sec', muscles: 'Triceps brachii long head', cue: 'Keep elbows close to head. Lower bar behind head until full stretch is felt in the long head. Press straight up by extending at the elbow — do not flare.', progression: 'Add 2.5–5 lb when 3 sets hit 12 clean reps.' },
+    ],
+    nutrition: 'Push days are high CNS output. Target 40–50g protein post-session within 45 minutes. Pair with 60–80g fast-digesting carbs (white rice, banana, white potato) to replenish glycogen. Total daily protein: 0.8–1g per lb of bodyweight. Do not skip the post-workout window on heavy push days.',
+    rationale: 'Compound press leads to prime the nervous system at peak freshness. Incline and overhead work follow in decreasing intensity order. Lateral raises and tricep isolation are done last with higher reps to maximize hypertrophic stimulus after the heavy compound has already recruited maximum motor units.',
+  },
+  'pull-a': {
+    label: 'Pull Day A',
+    focus: 'Back · Biceps · Rear Delts',
+    exercises: [
+      { name: 'Barbell Row (Overhand)', sets: 4, reps: '6–8', rest: '3 min', muscles: 'Latissimus dorsi, middle trapezius, rhomboids, rear deltoid, biceps brachii', cue: 'Hip hinge to ~45°. Pull bar to lower chest or upper abdomen. Lead with elbows, not hands. Keep back flat — any rounding transfers load off the target muscles.', progression: 'Add 5 lb when all 4 sets hit 8 reps. Reset form check before adding load.' },
+      { name: 'Lat Pulldown (Wide Grip)', sets: 3, reps: '10–12', rest: '2 min', muscles: 'Latissimus dorsi, teres major, biceps brachii', cue: 'Slight lean back. Pull bar to upper chest. Initiate by depressing the scapulae before bending elbows — this is the difference between a back exercise and an arm exercise.', progression: 'Add 5–10 lb when 3 sets hit 12 reps.' },
+      { name: 'Cable Row (Narrow Neutral Grip)', sets: 3, reps: '12', rest: '90 sec', muscles: 'Middle trapezius, rhomboids, rear deltoid, biceps', cue: 'Sit tall — do not rock the torso. Pull handle to lower abdomen. Pause at the peak and squeeze shoulder blades together for 1 full second.', progression: 'Add 5–10 lb when 3 sets hit 12 smooth reps.' },
+      { name: 'Face Pull (Rope)', sets: 4, reps: '15', rest: '90 sec', muscles: 'Rear deltoid, external rotators, mid and lower trapezius', cue: 'Set cable at or above head height. Pull rope to forehead, splitting it apart at the end. Externally rotate at the top. Non-negotiable for shoulder health — counteracts the anterior dominance of push days.', progression: 'Keep weight conservative. Rep quality and external rotation range matter more than load.' },
+      { name: 'EZ Bar Curl', sets: 3, reps: '10–12', rest: '90 sec', muscles: 'Biceps brachii, brachialis', cue: 'Keep upper arms pinned to sides. Curl through full range of motion. Lower slowly — 2 to 3 seconds on the eccentric. The negative builds as much as the curl.', progression: 'Add 2.5–5 lb when 3 sets hit 12 reps.' },
+      { name: 'Hammer Curl (Alternating)', sets: 3, reps: '12/side', rest: '90 sec', muscles: 'Brachialis, brachioradialis, biceps long head', cue: 'Neutral grip, palms facing torso. Alternate arms. Keep wrists locked — no rotation. The brachialis sits under the bicep and pushes it up when developed.', progression: 'Add 2.5 lb per side when all reps are controlled on both sides.' },
+    ],
+    nutrition: 'Pull sessions tax the posterior chain heavily. Eat 30–60g carbs 30–60 min pre-session (oats, rice, fruit). Post-session: 40–50g protein plus complex carbs. Omega-3s (2–3g EPA/DHA daily) reduce systemic inflammation and improve back-to-back session recovery.',
+    rationale: 'Barbell row anchors the session with the heaviest horizontal pull stimulus. Lat pulldown adds vertical pulling volume. Cable row reinforces the horizontal plane at higher reps. Face pulls are non-negotiable — they correct the anterior dominance built during push days and protect the shoulder joint against long-term impingement.',
+  },
+  'legs-a': {
+    label: 'Legs Day A',
+    focus: 'Quads · Hamstrings · Glutes',
+    exercises: [
+      { name: 'Barbell Back Squat', sets: 4, reps: '6–8', rest: '3–4 min', muscles: 'Quadriceps, gluteus maximus, hamstrings, adductors, erector spinae', cue: 'Bar on mid-traps. Brace core 360° — not just the abs, the entire cylinder. Sit between heels, not back. Break parallel. Drive knees out in line with toes on the ascent.', progression: 'Add 5 lb when all 4 sets hit 8 reps. The squat is slow to progress — do not rush or compromise depth for load.' },
+      { name: 'Romanian Deadlift', sets: 3, reps: '10–12', rest: '2–3 min', muscles: 'Hamstrings, gluteus maximus, erector spinae', cue: 'Hinge at the hip. Bar slides down the legs. Feel the hamstring stretch at the bottom — this is the stimulus. Do not round the lower back. Return by driving hips forward, not by pulling with the back.', progression: 'Add 5–10 lb when 3 sets hit 12 reps with a controlled 3-second eccentric.' },
+      { name: 'Leg Press', sets: 3, reps: '12–15', rest: '2 min', muscles: 'Quadriceps, gluteus maximus', cue: 'High and wide foot placement for more glute activation; low and narrow for more quad. Do not lock out the knees. Control the descent — sled speed reveals load management.', progression: 'Add 10–20 lb per side when 3 sets hit 15 reps.' },
+      { name: 'Lying Leg Curl (Machine)', sets: 3, reps: '12–15', rest: '90 sec', muscles: 'Biceps femoris, semimembranosus, semitendinosus', cue: 'Plantarflex (point toes down) to maximize hamstring shortening. Full ROM. Hold peak contraction 1 second — do not let the weight stack bounce.', progression: 'Add 5 lb when all sets hit 15 clean reps.' },
+      { name: 'Standing Calf Raise', sets: 4, reps: '15–20', rest: '60 sec', muscles: 'Gastrocnemius, soleus', cue: 'Full stretch at the bottom — pause for 1 second. Full contraction at the top. Calves respond to full ROM, not partial reps. Bouncing is wasted effort.', progression: 'Add 5–10 lb when all 4 sets hit 20 reps with full ROM.' },
+      { name: 'Goblet Squat (Finisher)', sets: 2, reps: '15–20', rest: '60 sec', muscles: 'Quadriceps, glutes, adductors', cue: 'Light weight. Elbows inside knees at the bottom. Use as a metabolic flush — the goal is blood flow and mind-muscle connection, not additional stimulus.', progression: 'Not a progression movement. Control and feel are the only metrics here.' },
+    ],
+    nutrition: 'Leg day is your highest caloric demand session. Increase total carbohydrates by 20–30% on leg training days. Pre-session: slow carbs 1–2 hours before. Intra-session: water and electrolytes for sessions over 60 min. Post-session: prioritize protein and fast carbs within 45 minutes — the glycogen depletion window is real.',
+    rationale: 'Squat anchors the session with maximum motor unit recruitment across the entire lower body. RDL provides posterior chain balance critical for knee health and prevents quad dominance developing into injury. Machine work follows to accumulate hypertrophic volume without further taxing the CNS. Calf work goes last — often untrained — and requires high volume to respond because the soleus and gastrocnemius are endurance-adapted muscles.',
+  },
+  'core': {
+    label: 'Core & Mobility Day',
+    focus: 'Stability · Anti-Rotation · Flexibility',
+    exercises: [
+      { name: 'Dead Bug', sets: 3, reps: '10/side', rest: '60 sec', muscles: 'Transverse abdominis, diaphragm, rectus abdominis', cue: 'Press lower back flat to floor — maintain this throughout. Opposite arm and leg extend simultaneously and slowly. Do not let the lower back arch at any point.', progression: 'Add a light dumbbell held in the extended hand when 10 reps per side feels easy.' },
+      { name: 'Pallof Press (Cable)', sets: 3, reps: '12/side', rest: '60 sec', muscles: 'Transverse abdominis, obliques, glutes', cue: 'Stand perpendicular to the cable. Press straight out, hold 1 second, return. The cable wants to rotate your torso — resisting that rotation is the exercise. No twisting.', progression: 'Add weight when all reps show zero torso rotation at full extension.' },
+      { name: 'Ab Wheel Rollout', sets: 3, reps: '8–10', rest: '90 sec', muscles: 'Rectus abdominis, hip flexors, latissimus dorsi', cue: 'Brace hard before rolling. Only extend as far as you can maintain a neutral spine — the lower back arching is the failure point. Pull back using the lats. Start from knees; progress to standing.', progression: 'Add reps or increase roll distance. Full standing rollout is the end goal.' },
+      { name: 'Copenhagen Plank', sets: 3, reps: '30 sec/side', rest: '60 sec', muscles: 'Hip adductors, obliques, glute medius', cue: 'Top foot on a bench, bottom leg hovering. Hold body in a rigid line. This trains the adductors as stabilizers — a frequently neglected capacity that matters for squats and single-leg work.', progression: 'Increase to 45 seconds, then 60 seconds per side.' },
+      { name: 'Hip Flexor Stretch (90/90)', sets: 3, reps: '60 sec/side', rest: '30 sec', muscles: 'Psoas, iliacus, rectus femoris', cue: 'Front shin perpendicular to torso, back leg in line. Tuck the pelvis (posterior tilt) before leaning forward — this is what makes it a hip stretch rather than a lower back compression.', progression: 'Aim to feel the stretch migrate deeper and higher in the hip over weeks. ROM is the progression.' },
+      { name: 'Thoracic Rotation (Half-Kneeling)', sets: 3, reps: '10/side', rest: '45 sec', muscles: 'Thoracic erectors, external rotators, serratus anterior', cue: 'Half-kneeling position. Hand behind head. Rotate through the upper back only — the lower back should not move. This directly improves bench press and barbell row mechanics.', progression: 'Increase rotation range over time. Add a light plate for gentle resistance.' },
+    ],
+    nutrition: 'Lower-demand session — adjust total calories slightly down from heavy training days. Maintain protein intake regardless of session intensity. Focus on anti-inflammatory foods: leafy greens, fatty fish, berries, olive oil. Magnesium before bed (300–400mg glycinate) improves sleep quality and overnight muscle repair.',
+    rationale: 'Most intermediate programs skip this day and pay for it with overuse injuries. Core stability prevents injury, transfers force between upper and lower body, and improves performance on every compound lift. Hip flexor and thoracic mobility directly improve squat depth and pressing mechanics — two of the biggest bottlenecks for intermediate lifters who have been training without structured mobility work.',
+  },
+  'push-b': {
+    label: 'Push Day B',
+    focus: 'Chest · Shoulders · Triceps (Volume Focus)',
+    exercises: [
+      { name: 'Dumbbell Bench Press', sets: 4, reps: '10–12', rest: '2 min', muscles: 'Pectoralis major, anterior deltoid, triceps brachii', cue: 'Greater ROM than barbell. Touch the chest at the bottom without losing pec tension. Dumbbells travel in a slight arc inward at the top — do not press straight up.', progression: 'Add 2.5 lb per side when all 4 sets hit 12 reps with control.' },
+      { name: 'Cable Chest Fly (Mid Cable)', sets: 3, reps: '15', rest: '90 sec', muscles: 'Pectoralis major (sternal head), anterior deltoid', cue: 'Slight forward lean. Arms slightly bent throughout. Squeeze the pecs at the center — imagine hugging a barrel. Never use momentum. This is a stretch-and-contract movement.', progression: 'Add 5 lb when 3 sets hit 15 reps with a controlled peak squeeze.' },
+      { name: 'Arnold Press', sets: 3, reps: '10–12', rest: '2 min', muscles: 'All three deltoid heads, triceps brachii', cue: 'Start with palms facing you at chin height. Rotate to palms forward as you press overhead. The rotation recruits all three deltoid heads through the range of motion.', progression: 'Add 2.5 lb per side when 3 sets hit 12 reps.' },
+      { name: 'Machine Lateral Raise', sets: 3, reps: '15', rest: '90 sec', muscles: 'Lateral deltoid', cue: 'Elbow contacts the pad, not the wrist. This removes forearm leverage and isolates the lateral head better than dumbbell variations where the forearm assists.', progression: 'Add the minimum available increment when all sets hit 15 reps cleanly.' },
+      { name: 'Skull Crushers (EZ Bar)', sets: 3, reps: '10–12', rest: '90 sec', muscles: 'Triceps brachii (long and medial head)', cue: 'Lower bar to forehead or just behind the head. Elbows travel slightly backward as the bar descends. Press by driving elbows forward and up — not just extending straight.', progression: 'Add 2.5–5 lb when 3 sets hit 12 reps.' },
+      { name: 'Tricep Dip (Bench or Bar)', sets: 3, reps: '12–15', rest: '90 sec', muscles: 'Triceps brachii, anterior deltoid, pectoralis minor', cue: 'Stay upright for tricep emphasis. Lean forward to shift work to the chest. Lower until elbows hit 90°. Press through palms evenly.', progression: 'Add weight via dip belt once bodyweight 15 reps are controlled for all 3 sets.' },
+    ],
+    nutrition: 'Push Day B uses higher rep ranges — lactic acid accumulates significantly. Stay well hydrated through the session. If you are in a surplus (building phase), maintain the surplus today. If cutting, protein is the non-negotiable — everything else can flex, protein cannot. Target 40g+ protein post-session regardless of goal.',
+    rationale: "Push B prioritizes volume over intensity. Dumbbells replace the barbell for increased unilateral range of motion and freedom of movement. Arnold Press rotates through more of the shoulder's functional range than a standard press, improving strength across a wider arc. Higher rep isolation work on Push B creates the hypertrophic volume the heavier Push A does not fully deliver.",
+  },
+  'pull-b': {
+    label: 'Pull Day B',
+    focus: 'Back · Biceps (Strength + Stretch)',
+    exercises: [
+      { name: 'Conventional Deadlift', sets: 3, reps: '4–5', rest: '4 min', muscles: 'Hamstrings, gluteus maximus, erector spinae, trapezius, lats, forearms', cue: 'Bar over mid-foot. Grip just outside legs. Hips above knees, shoulders above hips. Drive the floor away — do not think of it as a pull. Lock hips and knees out simultaneously at the top.', progression: 'Add 5 lb when all 3 sets hit 5 reps with solid bracing and no rounding. The deadlift is a slow-progress movement — respect the increments.' },
+      { name: 'Pull-Up or Assisted Pull-Up', sets: 4, reps: '6–10', rest: '2–3 min', muscles: 'Latissimus dorsi, teres major, biceps brachii, rear deltoid', cue: 'Full hang at the bottom. Pull elbows to hips, not bar to chin. Initiate by depressing and retracting scapulae before bending elbows — this is the difference between a shoulder exercise and a back exercise.', progression: 'Bodyweight: add reps, then add load via belt once 4x10. Assisted: reduce assistance by one increment each week.' },
+      { name: 'Single-Arm Dumbbell Row', sets: 3, reps: '12/side', rest: '90 sec', muscles: 'Latissimus dorsi, rhomboids, biceps brachii', cue: 'Brace on bench with free hand. Let the dumbbell hang fully to stretch the lat at the bottom. Pull to hip, not to chest. Allow slight torso rotation for full ROM — this is not cheating, it is mechanics.', progression: 'Add 2.5–5 lb when all reps are controlled on both sides.' },
+      { name: 'Rear Delt Fly (Machine or Incline DB)', sets: 4, reps: '15', rest: '90 sec', muscles: 'Posterior deltoid, infraspinatus, teres minor', cue: 'Lead with elbows, not hands. Stop at shoulder height. Do not shrug — trap involvement steals the stimulus from the rear delt. Small weight, deliberate contraction.', progression: 'A 2.5 lb jump is significant here. Rear delts fatigue quickly and respond to quality, not load.' },
+      { name: 'Incline Dumbbell Curl', sets: 3, reps: '12', rest: '90 sec', muscles: 'Biceps brachii long head, brachialis', cue: 'Sit back on an incline bench. Arms hang behind the body — this stretches the long head of the bicep in a way no other curl can. Curl without shoulder movement.', progression: 'Add 2.5 lb per side when 3 sets hit 12 reps.' },
+      { name: 'Cable Curl (Straight Bar)', sets: 3, reps: '15', rest: '75 sec', muscles: 'Biceps brachii, brachialis, brachioradialis', cue: 'Constant cable tension keeps biceps under load through the entire range — unlike free weights that reduce tension at peak. Supinate at the top. Control the negative.', progression: 'Add 5 lb when 3 sets hit 15 reps with a full squeeze at the top.' },
+    ],
+    nutrition: 'The deadlift taxes the entire posterior chain and CNS. After a heavy pull session, eat a full post-workout meal within 60 minutes — do not skip it. Casein protein before bed (cottage cheese, Greek yogurt) promotes overnight muscle protein synthesis during the extended repair window. Do not undereat on pull days.',
+    rationale: 'Pull B leads with the deadlift for maximum posterior chain strength — once per week is sufficient given its systemic recovery demand. Pull-ups provide vertical pulling in a more challenging context than lat pulldowns and build grip strength simultaneously. Incline curls uniquely lengthen the long head of the bicep under load, producing a greater hypertrophic stimulus than standard curl variations at equivalent volume.',
+  },
+  'legs-b': {
+    label: 'Legs Day B',
+    focus: 'Quads · Glutes · Hamstrings (Accessory Focus)',
+    exercises: [
+      { name: 'Hack Squat or Front Squat', sets: 4, reps: '8–10', rest: '3 min', muscles: 'Quadriceps (vastus lateralis, vastus medialis), gluteus maximus', cue: 'Hack squat: heels elevated, feet shoulder-width. Front squat: bar in rack position, elbows high — if elbows drop, the bar drops. Both variations shift load to the quads versus back squat.', progression: 'Add 5–10 lb when all 4 sets hit 10 reps. Front squat: add 5 lb only.' },
+      { name: 'Hip Thrust (Barbell)', sets: 4, reps: '10–12', rest: '2 min', muscles: 'Gluteus maximus, gluteus medius, hamstrings', cue: 'Upper back on bench. Bar padded over the hip crease. Feet flat and close to hips. Drive hips up — squeeze glutes at the top and hold for 1 second. Do not hyperextend the spine at the top.', progression: 'Add 10 lb when all 4 sets hit 12 strong, controlled reps.' },
+      { name: 'Walking Lunge (Dumbbell)', sets: 3, reps: '12/leg', rest: '2 min', muscles: 'Quadriceps, gluteus maximus, hamstrings, hip stabilizers', cue: 'Long step. Drop the rear knee toward the floor without touching. Front shin should stay vertical. Expect more systemic fatigue than equivalent bilateral exercises — single-leg work exposes strength imbalances.', progression: 'Add 2.5–5 lb per side when 3 sets complete without form breakdown.' },
+      { name: 'Leg Extension (Machine)', sets: 3, reps: '15', rest: '90 sec', muscles: 'Quadriceps (all four heads, rectus femoris emphasis)', cue: 'Sit fully back in the seat. Point toes slightly inward for more VMO (inner quad) activation. Full extension at the top — hold for 1 second. Lower slowly.', progression: 'Add 5 lb when 3 sets hit 15 reps with full extension and a 1-second hold.' },
+      { name: 'Seated Leg Curl (Machine)', sets: 3, reps: '12–15', rest: '90 sec', muscles: 'Hamstrings (biceps femoris, semimembranosus)', cue: 'Seated position places hamstrings in a lengthened position from the hip — greater stretch stimulus than lying leg curl. Full range of motion. Control the eccentric on every rep.', progression: 'Add 5 lb when all sets hit 15 reps.' },
+      { name: 'Seated Calf Raise', sets: 4, reps: '15–20', rest: '60 sec', muscles: 'Soleus (primary), gastrocnemius', cue: 'Seated targets the soleus — the deeper calf muscle, often underdeveloped relative to the gastrocnemius. Full ROM: full stretch at the bottom, full contraction at the top. No partial reps.', progression: 'Add 5–10 lb when 4 sets hit 20 reps with full ROM.' },
+    ],
+    nutrition: 'Legs B has slightly lower CNS demand than Legs A but still requires caloric support. Hip thrusts target the glutes directly — leucine-rich protein sources (eggs, beef, whey) are the most effective trigger for muscle protein synthesis in the glutes. Consider a pre-workout carb source: 30–50g consumed 30–60 minutes before training.',
+    rationale: 'Legs B shifts the emphasis forward: quad-dominant squatting and hip thrusts as the primary glute stimulus. This directly balances the posterior emphasis of Legs A and ensures neither quad nor posterior chain development falls behind. Walking lunges train single-leg stability — a critical capacity for preventing asymmetrical strength imbalances that compound over months of bilateral-only training.',
+  },
+  'recovery': {
+    label: 'Active Recovery',
+    focus: 'Cardio · Mobility · Blood Flow',
+    exercises: [
+      { name: 'Steady-State Cardio', sets: 1, reps: '30–40 min', rest: 'None', muscles: 'Cardiovascular system, aerobic energy system', cue: 'Keep heart rate at 50–65% of max HR (roughly: 220 minus your age, multiplied by 0.6). Options: walking, cycling, rowing, swimming. You should be able to hold a full conversation. This is recovery work, not training.', progression: 'Increase duration before intensity. 40–45 min at Zone 2 is the ceiling for this session type.' },
+      { name: 'Cat-Cow (Spinal Mobility)', sets: 3, reps: '10 slow reps', rest: '30 sec', muscles: 'Spinal extensors, multifidus, rectus abdominis', cue: 'On hands and knees. Arch fully (cow), then round fully (cat). Move vertebra by vertebra. Inhale on cow, exhale on cat. Do not rush — the slow movement is the mechanism.', progression: 'Increase the range of motion at each end of the movement over weeks.' },
+      { name: "World's Greatest Stretch", sets: 2, reps: '5/side', rest: '30 sec', muscles: 'Hip flexors, glutes, thoracic spine, hamstrings', cue: 'From a lunge position: front foot flat. Same-side elbow to floor. Then rotate that arm toward the ceiling. Hold each position 2–3 seconds. This one stretch addresses five mobility restrictions at once.', progression: 'Aim for deeper range at each position over time.' },
+      { name: 'Foam Roll: Thoracic Spine', sets: 1, reps: '90 sec', rest: 'None', muscles: 'Thoracic erectors, rhomboids', cue: "Roll slowly from T1 to T12. When you hit a tender spot, stop and breathe into it for 3–5 breaths before moving on. Don't roll the lower back — the lumbar spine does not benefit from this.", progression: 'Soreness at specific spots should decrease week over week — it means adaptation is happening.' },
+      { name: 'Foam Roll: Lats and IT Band', sets: 1, reps: '60 sec/side', rest: 'None', muscles: 'Latissimus dorsi, iliotibial band, tensor fasciae latae', cue: 'Lat: arm overhead, roll from armpit to just above hip. IT band: side-lying, roll from hip to just above knee. Slow passes are more effective than fast rolling — you are not a rolling pin.', progression: 'Decreased soreness over weeks indicates adaptation. Move to less-addressed areas.' },
+      { name: 'Band Pull-Apart', sets: 3, reps: '20', rest: '45 sec', muscles: 'Rear deltoid, middle trapezius, rhomboids', cue: 'Arms parallel to floor, palms down. Pull band apart until fully extended. Control the return. Keep arms straight throughout. This maintains posterior chain health between Pull Day sessions.', progression: 'Use a thicker band when 3 sets of 20 feel easy with full extension.' },
+    ],
+    nutrition: 'Recovery days are not rest days from nutrition. Keep protein intake consistent with training days — muscle repair continues 24–48 hours post-session. Reduce total calories by 10–15% since metabolic demand is lower. Prioritize sleep quality (7–9 hours), hydration (body weight in lbs divided by 2 equals target oz of water), and anti-inflammatory foods.',
+    rationale: 'Active recovery accelerates the clearance of metabolic waste from training sessions and stimulates blood flow without adding muscle damage. Zone 2 cardio builds mitochondrial density and aerobic base capacity — adaptations that improve all other training. Mobility work is more effective on recovery days than training days because the body is not competing for resources between performance and adaptation.',
+  },
 }
 
-// ── Exercise type detection ───────────────────────────────────────────────────
+import SCHEDULE from './schedule.json'
+export { SCHEDULE }
 
-function getExerciseType(reps) {
-  const r = String(reps).toLowerCase()
-  if (r.includes('min') || r.includes('sec')) return 'time'
-  return 'reps'
-}
-
-// ── Set Row ───────────────────────────────────────────────────────────────────
-
-function SetRow({ setNumber, weight, reps, onChange, exerciseType, repsLabel }) {
-  if (exerciseType === 'time') {
-    return (
-      <div className="set-row">
-        <span className="set-number">Set {setNumber}</span>
-        <label className="set-input-wrap" style={{ flex: 1 }}>
-          <input
-            type="text"
-            inputMode="text"
-            placeholder={repsLabel || 'duration'}
-            value={reps}
-            onChange={e => onChange('reps', e.target.value)}
-            className="set-input"
-          />
-          <span className="set-input-unit">dur</span>
-        </label>
-      </div>
-    )
+/**
+ * Returns the 0-based index into SCHEDULE based on how many days
+ * have passed since the user joined, offset by a per-user seed
+ * so each user gets a different starting point in the schedule.
+ *
+ * @param {string|null} joinedAt - ISO timestamp from profiles.joined_at
+ * @param {number} seed - per-user random seed from profiles.schedule_seed
+ */
+export function getTodayIndex(joinedAt = null, seed = 0) {
+  let dayIndex
+  if (joinedAt) {
+    const start = new Date(joinedAt)
+    start.setHours(0, 0, 0, 0)
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const diffMs = now - start
+    dayIndex = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  } else {
+    dayIndex = new Date().getDate() - 1
   }
-
-  return (
-    <div className="set-row">
-      <span className="set-number">Set {setNumber}</span>
-      <label className="set-input-wrap">
-        <input
-          type="number" inputMode="decimal" placeholder="lbs"
-          value={weight} min={0}
-          onChange={e => onChange('weight', e.target.value)}
-          className="set-input"
-        />
-        <span className="set-input-unit">lbs</span>
-      </label>
-      <span className="set-sep">×</span>
-      <label className="set-input-wrap">
-        <input
-          type="number" inputMode="numeric" placeholder="reps"
-          value={reps} min={0}
-          onChange={e => onChange('reps', e.target.value)}
-          className="set-input"
-        />
-        <span className="set-input-unit">reps</span>
-      </label>
-    </div>
-  )
+  return (dayIndex + seed) % SCHEDULE.length
 }
 
-// ── Log Modal ─────────────────────────────────────────────────────────────────
-
-function LogModal({ workout, workoutKey, idx, userId, onClose, onLogged }) {
-  const initialSets = Object.fromEntries(
-    workout.exercises.map(ex => [
-      ex.name,
-      Array.from({ length: ex.sets }, () => ({ weight: '', reps: '' }))
-    ])
-  )
-  const exerciseTypes = Object.fromEntries(
-    workout.exercises.map(ex => [ex.name, getExerciseType(ex.reps)])
-  )
-  const [sets, setSets]     = useState(initialSets)
-  const [saving, setSaving] = useState(false)
-  const [error, setError]   = useState(null)
-  const modalRef = useRef()
-
-  function handleBackdrop(e) {
-    if (e.target === modalRef.current) onClose()
-  }
-
-  function updateSet(exerciseName, setIndex, field, value) {
-    setSets(prev => ({
-      ...prev,
-      [exerciseName]: prev[exerciseName].map((s, i) =>
-        i === setIndex ? { ...s, [field]: value } : s
-      )
-    }))
-  }
-
-  async function handleSave() {
-    setSaving(true)
-    setError(null)
-    try {
-      const { data: logData, error: logError } = await supabase
-        .from('workout_logs')
-        .insert({ user_id: userId, workout_key: workoutKey, day_index: idx })
-        .select('id')
-        .single()
-      if (logError) throw logError
-
-      const workoutLogId = logData.id
-      const setRows = []
-      for (const ex of workout.exercises) {
-        const exType = getExerciseType(ex.reps)
-        sets[ex.name].forEach((s, i) => {
-          if (exType === 'time') {
-            if (!s.reps || !s.reps.trim()) return
-            setRows.push({
-              workout_log_id: workoutLogId,
-              user_id: userId,
-              exercise_name: ex.name,
-              set_number: i + 1,
-              weight: null,
-              reps: 0, // store 0 for time-based
-            })
-          } else {
-            const repsVal = parseInt(s.reps)
-            if (!repsVal || repsVal < 1) return
-            setRows.push({
-              workout_log_id: workoutLogId,
-              user_id: userId,
-              exercise_name: ex.name,
-              set_number: i + 1,
-              weight: s.weight !== '' ? parseFloat(s.weight) : null,
-              reps: repsVal,
-            })
-          }
-        })
-      }
-
-      if (setRows.length > 0) {
-        const { error: setsError } = await supabase.from('set_logs').insert(setRows)
-        if (setsError) throw setsError
-      }
-
-      onLogged(sets)
-      onClose()
-    } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="modal-backdrop" ref={modalRef} onClick={handleBackdrop}>
-      <div className="modal-sheet">
-        <div className="modal-header">
-          <div>
-            <h3 className="modal-title">{workout.label}</h3>
-          </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
-        </div>
-        <div className="modal-body">
-          {workout.exercises.map(ex => (
-            <div key={ex.name} className="log-exercise">
-              <div className="log-exercise-header">
-                <span className="log-exercise-name">{ex.name}</span>
-                <span className="log-exercise-meta">{ex.sets} sets · {ex.reps} reps</span>
-              </div>
-              <div className="set-rows">
-                {sets[ex.name].map((s, i) => (
-                  <SetRow
-                    key={i} setNumber={i + 1}
-                    weight={s.weight} reps={s.reps}
-                    exerciseType={exerciseTypes[ex.name]}
-                    repsLabel={String(ex.reps)}
-                    onChange={(field, val) => updateSet(ex.name, i, field, val)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          {error && <p className="log-error">{error}</p>}
-        </div>
-        <div className="modal-footer">
-          <p className="log-hint">Leave weight blank for bodyweight exercises.</p>
-          <button className="btn primary full-width" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Workout'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── PR Banner ─────────────────────────────────────────────────────────────────
-
-function PRBanner({ prs }) {
-  if (!prs || prs.length === 0) return null
-  return (
-    <div className="pr-banner">
-      <span className="pr-trophy">🏆</span>
-      <div className="pr-text">
-        <strong>New PR{prs.length > 1 ? 's' : ''}!</strong>{' '}
-        {prs.map((pr, i) => (
-          <span key={i}>
-            {pr.exercise_name} — {pr.weight} lbs × {pr.reps} reps
-            {i < prs.length - 1 ? ', ' : ''}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ── Streak Banner ─────────────────────────────────────────────────────────────
-
-function StreakBanner({ streak }) {
-  if (!streak || streak < 2) return null
-  const emoji = streak >= 30 ? '🔥🔥🔥' : streak >= 14 ? '🔥🔥' : '🔥'
-  return (
-    <div className="pr-banner">
-      <span className="pr-trophy">{emoji}</span>
-      <div className="pr-text">
-        <strong>{streak}-day streak!</strong>{' '}
-        <span>You've logged workouts {streak} days in a row. Keep it going.</span>
-      </div>
-    </div>
-  )
-}
-
-// ── Deload Banner ─────────────────────────────────────────────────────────────
-
-function DeloadBanner() {
-  return (
-    <div className="pr-banner" style={{ borderColor: 'rgba(255,200,0,.3)', background: 'linear-gradient(135deg, rgba(255,200,0,.08) 0%, rgba(255,200,0,.02) 100%)' }}>
-      <span className="pr-trophy">⚠️</span>
-      <div className="pr-text">
-        <strong>Consider a deload this week.</strong>{' '}
-        <span>You've missed your target reps on key lifts two sessions in a row. A lighter week will help you recover and come back stronger.</span>
-      </div>
-    </div>
-  )
-}
-
-// ── Exercise Card ─────────────────────────────────────────────────────────────
-
-function ExerciseCard({ ex, isPremium }) {
-  return (
-    <div className="exercise-card">
-      <h3 className="exercise-name">{ex.name}</h3>
-      <div className="exercise-stats">
-        <div className="stat"><span className="stat-label">Sets</span><span className="stat-value">{ex.sets}</span></div>
-        <div className="stat"><span className="stat-label">Reps</span><span className="stat-value">{ex.reps}</span></div>
-        <div className="stat"><span className="stat-label">Rest</span><span className="stat-value">{ex.rest}</span></div>
-      </div>
-      {isPremium ? (
-        <div className="exercise-premium">
-          <div className="premium-row"><span className="premium-label">Primary Muscles</span><span className="premium-value">{ex.muscles}</span></div>
-          <div className="premium-row"><span className="premium-label">Form Cue</span><span className="premium-value">{ex.cue}</span></div>
-          <div className="premium-row"><span className="premium-label">Progression Rule</span><span className="premium-value">{ex.progression}</span></div>
-        </div>
-      ) : (
-        <div className="premium-locked">
-          <div className="premium-lock-overlay">
-            <span>&#128274;</span>
-            <span>Form cues &amp; progression rules — <strong>Premium</strong></span>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Nutrition Card ────────────────────────────────────────────────────────────
-
-function NutritionCard({ workout, isPremium }) {
-  if (isPremium) {
-    return (
-      <div className="card nutrition-card">
-        <h3 className="nutrition-title">{workout.label}</h3>
-        <p>{workout.nutrition}</p>
-        <div className="rationale-block">
-          <p style={{ margin: '10px 0 0' }}>{workout.rationale}</p>
-        </div>
-      </div>
-    )
-  }
-  return (
-    <div className="card nutrition-card">
-      <h3 className="nutrition-title">Fuel Your Session</h3>
-      <div className="premium-lock-overlay" style={{ marginTop: 16 }}>
-        <span>&#128274;</span>
-        <span>Daily nutrition brief &amp; program rationale — <strong>Premium only.</strong></span>
-      </div>
-    </div>
-  )
-}
-
-// ── Deload Detection ──────────────────────────────────────────────────────────
-
-async function checkDeload(userId, workout) {
-  try {
-    // Get last 2 workout logs for this workout key
-    const { data: logs } = await supabase
-      .from('workout_logs')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('workout_key', workout.key ?? '')
-      .order('logged_at', { ascending: false })
-      .limit(2)
-
-    if (!logs || logs.length < 2) return false
-
-    const primaryExercises = workout.exercises.slice(0, 2) // check first 2 exercises
-
-    let failCount = 0
-
-    for (const ex of primaryExercises) {
-      // Parse target reps (e.g. "8-10" -> min 8)
-      const targetReps = parseInt(ex.reps.toString().split('-')[0])
-
-      // Get set logs for this exercise across last 2 sessions
-      const { data: setData } = await supabase
-        .from('set_logs')
-        .select('reps, workout_log_id')
-        .in('workout_log_id', logs.map(l => l.id))
-        .eq('exercise_name', ex.name)
-
-      if (!setData || setData.length === 0) continue
-
-      // Group by session
-      const bySession = {}
-      setData.forEach(s => {
-        if (!bySession[s.workout_log_id]) bySession[s.workout_log_id] = []
-        bySession[s.workout_log_id].push(s.reps)
-      })
-
-      // Check if both sessions missed target on at least one set
-      const sessions = Object.values(bySession)
-      if (sessions.length < 2) continue
-
-      const bothFailed = sessions.every(sessionSets =>
-        sessionSets.some(reps => reps < targetReps)
-      )
-
-      if (bothFailed) failCount++
-    }
-
-    return failCount >= 1
-  } catch {
-    return false
-  }
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-export default function Workout() {
-  const { session } = useAuth()
-  const [isPremium,    setIsPremium]    = useState(false)
-  const [joinedAt,     setJoinedAt]     = useState(null)
-  const [loaded,       setLoaded]       = useState(false)
-  const [showModal,    setShowModal]    = useState(false)
-  const [newPRs,       setNewPRs]       = useState([])
-  const [loggedToday,  setLoggedToday]  = useState(false)
-  const [streak,       setStreak]       = useState(0)
-  const [needsDeload,  setNeedsDeload]  = useState(false)
-
-  useEffect(() => {
-    if (!session) return
-    supabase
-      .from('profiles')
-      .select('role, subscription, joined_at')
-      .eq('id', session.user.id)
-      .single()
-      .then(({ data }) => {
-        setIsPremium(data?.subscription === 'premium' || data?.subscription === 'canceling' || data?.role === 'admin')
-        setJoinedAt(data?.joined_at ?? null)
-        setLoaded(true)
-      })
-  }, [session])
-
-  useEffect(() => {
-    if (!session) return
-
-    // Check logged today
-    const today = getLocalDateString()
-    supabase
-      .from('workout_logs')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .gte('logged_at', today + 'T00:00:00')
-      .lte('logged_at', today + 'T23:59:59')
-      .then(({ data }) => {
-        if (data && data.length > 0) setLoggedToday(true)
-      })
-
-    // Get streak
-    supabase
-      .from('user_streaks')
-      .select('streak')
-      .eq('user_id', session.user.id)
-      .single()
-      .then(({ data }) => {
-        if (data?.streak) setStreak(data.streak)
-      })
-  }, [session])
-
-  const idx        = getTodayIndex(joinedAt)
-  const workoutKey = SCHEDULE[idx]
-  const workout    = WORKOUTS[workoutKey]
-
-  // Check deload after component loads
-  useEffect(() => {
-    if (!session || !loaded || !workout) return
-    checkDeload(session.user.id, { ...workout, key: workoutKey }).then(setNeedsDeload)
-  }, [session, loaded, workoutKey])
-
-  async function handleLogged(loggedSets) {
-    setLoggedToday(true)
-    setStreak(s => s + 1)
-
-    // Check for new PRs
-    const today = getLocalDateString()
-    const { data } = await supabase
-      .from('personal_records')
-      .select('exercise_name, weight, reps')
-      .eq('user_id', session.user.id)
-      .gte('achieved_at', today + 'T00:00:00')
-    if (data && data.length > 0) setNewPRs(data)
-
-    // Re-check deload after logging
-    const deload = await checkDeload(session.user.id, { ...workout, key: workoutKey })
-    setNeedsDeload(deload)
-  }
-
-  if (!loaded) {
-    return (
-      <PageTransition>
-        <Header />
-        <main className="workout-wrap">
-          <p className="workout-status">Loading your program...</p>
-        </main>
-        <Footer />
-      </PageTransition>
-    )
-  }
-
-  return (
-    <PageTransition>
-      <Header />
-      <main className="workout-wrap">
-
-        {newPRs.length > 0 && <PRBanner prs={newPRs} />}
-        {streak > 1 && !newPRs.length && <StreakBanner streak={streak} />}
-        {needsDeload && <DeloadBanner />}
-
-        <div className="card day-header">
-          <div>
-            <h2>{workout.label}</h2>
-            <div className="day-pills">
-              <span className="pill">{workout.focus}</span>
-              <span className="pill">Day {idx + 1} of {SCHEDULE.length} · {getWeekLabel(idx)}</span>
-              {streak > 0 && (
-                <span className="pill">🔥 {streak}-day streak</span>
-              )}
-            </div>
-          </div>
-          <button
-            className={`btn log-btn ${loggedToday ? 'logged' : 'primary'}`}
-            onClick={() => !loggedToday && setShowModal(true)}
-            disabled={loggedToday}
-          >
-            {loggedToday ? '✓ Logged' : 'Log Workout'}
-          </button>
-        </div>
-
-        <div className="exercise-grid">
-          {workout.exercises.map((ex, i) => (
-            <ExerciseCard key={i} ex={ex} isPremium={isPremium} />
-          ))}
-        </div>
-
-        <NutritionCard workout={workout} isPremium={isPremium} />
-
-        {!isPremium && (
-          <div className="card upgrade-cta">
-            <h2>Get the Full System.</h2>
-            <p className="lead">Unlock progression rules, form cues, primary muscle targets, and your daily nutrition brief.</p>
-            <div className="actions">
-              <Link to="/upgrade" className="btn primary">Upgrade — $19.99/mo</Link>
-            </div>
-          </div>
-        )}
-
-      </main>
-      <Footer />
-
-      {showModal && (
-        <LogModal
-          workout={workout}
-          workoutKey={workoutKey}
-          idx={idx}
-          userId={session.user.id}
-          onClose={() => setShowModal(false)}
-          onLogged={handleLogged}
-        />
-      )}
-    </PageTransition>
-  )
+export function getWeekLabel(idx) {
+  return 'Week ' + (Math.floor(idx / 7) + 1)
 }
