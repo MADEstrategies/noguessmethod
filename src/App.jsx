@@ -27,7 +27,11 @@ import Library from './pages/userHome/Library'
 
 function GuestRoute({ children }) {
   const { session, loading } = useAuth()
-  if (loading) return null
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading...</p>
+    </div>
+  )
   if (session) return <Navigate to="/account" replace />
   return children
 }
