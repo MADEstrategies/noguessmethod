@@ -14,13 +14,20 @@ const WORKOUT_INFO = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getTodayIndex(joinedAt) {
-  const start = new Date(joinedAt);
-  start.setHours(0, 0, 0, 0);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const days = Math.floor((now - start) / 86400000);
-  return days % SCHEDULE.length;
+function getTodayIndex(joinedAt, seed = 0) {
+  const SCHEDULE_LENGTH = 30
+  let dayIndex
+  if (joinedAt) {
+    const start = new Date(joinedAt)
+    start.setHours(0, 0, 0, 0)
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const days = Math.floor((now - start) / 86400000)
+    dayIndex = days
+  } else {
+    dayIndex = new Date().getDate() - 1
+  }
+  return (dayIndex + seed) % SCHEDULE_LENGTH
 }
 
 // Convert stored UTC HH:MM to the user's local time, then check if it matches now.
@@ -166,7 +173,7 @@ exports.handler = async () => {
 
   const { data: users, error } = await sb
     .from('profiles')
-    .select('id, username, reminder_time, reminder_timezone, reminder_email_enabled, reminder_sms_enabled, phone_number, phone_verified, joined_at')
+    .select('id, username, reminder_time, reminder_timezone, reminder_email_enabled, reminder_sms_enabled, phone_number, phone_verified, joined_at, schedule_seed')
     .or('reminder_email_enabled.eq.true,reminder_sms_enabled.eq.true')
     .not('reminder_time', 'is', null);
 
@@ -196,7 +203,7 @@ exports.handler = async () => {
     // Match within a 7-minute window to account for scheduler drift
     if (Math.abs(userMins - currMins) > 7) return;
 
-    const idx     = getTodayIndex(user.joined_at);
+    const idx     = getTodayIndex(user.joined_at, user.schedule_seed ?? 0);
     const key     = SCHEDULE[idx];
     const workout = WORKOUT_INFO[key];
     const name    = user.username ?? 'there';
