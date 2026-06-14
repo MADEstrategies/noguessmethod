@@ -15,9 +15,36 @@ function getLocalDateString() {
   return `${yyyy}-${mm}-${dd}`
 }
 
+// ── Exercise type detection ───────────────────────────────────────────────────
+
+function getExerciseType(reps) {
+  const r = String(reps).toLowerCase()
+  if (r.includes('min') || r.includes('sec')) return 'time'
+  return 'reps'
+}
+
 // ── Set Row ───────────────────────────────────────────────────────────────────
 
-function SetRow({ setNumber, weight, reps, onChange }) {
+function SetRow({ setNumber, weight, reps, onChange, exerciseType, repsLabel }) {
+  if (exerciseType === 'time') {
+    return (
+      <div className="set-row">
+        <span className="set-number">Set {setNumber}</span>
+        <label className="set-input-wrap" style={{ flex: 1 }}>
+          <input
+            type="text"
+            inputMode="text"
+            placeholder={repsLabel || 'duration'}
+            value={reps}
+            onChange={e => onChange('reps', e.target.value)}
+            className="set-input"
+          />
+          <span className="set-input-unit">dur</span>
+        </label>
+      </div>
+    )
+  }
+
   return (
     <div className="set-row">
       <span className="set-number">Set {setNumber}</span>
@@ -53,6 +80,9 @@ function LogModal({ workout, workoutKey, idx, userId, onClose, onLogged }) {
       Array.from({ length: ex.sets }, () => ({ weight: '', reps: '' }))
     ])
   )
+  const exerciseTypes = Object.fromEntries(
+    workout.exercises.map(ex => [ex.name, getExerciseType(ex.reps)])
+  )
   const [sets, setSets]     = useState(initialSets)
   const [saving, setSaving] = useState(false)
   const [error, setError]   = useState(null)
@@ -85,17 +115,30 @@ function LogModal({ workout, workoutKey, idx, userId, onClose, onLogged }) {
       const workoutLogId = logData.id
       const setRows = []
       for (const ex of workout.exercises) {
+        const exType = getExerciseType(ex.reps)
         sets[ex.name].forEach((s, i) => {
-          const repsVal = parseInt(s.reps)
-          if (!repsVal || repsVal < 1) return
-          setRows.push({
-            workout_log_id: workoutLogId,
-            user_id: userId,
-            exercise_name: ex.name,
-            set_number: i + 1,
-            weight: s.weight !== '' ? parseFloat(s.weight) : null,
-            reps: repsVal,
-          })
+          if (exType === 'time') {
+            if (!s.reps || !s.reps.trim()) return
+            setRows.push({
+              workout_log_id: workoutLogId,
+              user_id: userId,
+              exercise_name: ex.name,
+              set_number: i + 1,
+              weight: null,
+              reps: 0, // store 0 for time-based
+            })
+          } else {
+            const repsVal = parseInt(s.reps)
+            if (!repsVal || repsVal < 1) return
+            setRows.push({
+              workout_log_id: workoutLogId,
+              user_id: userId,
+              exercise_name: ex.name,
+              set_number: i + 1,
+              weight: s.weight !== '' ? parseFloat(s.weight) : null,
+              reps: repsVal,
+            })
+          }
         })
       }
 
@@ -134,6 +177,8 @@ function LogModal({ workout, workoutKey, idx, userId, onClose, onLogged }) {
                   <SetRow
                     key={i} setNumber={i + 1}
                     weight={s.weight} reps={s.reps}
+                    exerciseType={exerciseTypes[ex.name]}
+                    repsLabel={String(ex.reps)}
                     onChange={(field, val) => updateSet(ex.name, i, field, val)}
                   />
                 ))}
@@ -319,6 +364,7 @@ export default function Workout() {
   const { session } = useAuth()
   const [isPremium,    setIsPremium]    = useState(false)
   const [joinedAt,     setJoinedAt]     = useState(null)
+  const [seed,         setSeed]         = useState(0)
   const [loaded,       setLoaded]       = useState(false)
   const [showModal,    setShowModal]    = useState(false)
   const [newPRs,       setNewPRs]       = useState([])
@@ -330,12 +376,13 @@ export default function Workout() {
     if (!session) return
     supabase
       .from('profiles')
-      .select('role, subscription, joined_at')
+      .select('role, subscription, joined_at, schedule_seed')
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => {
         setIsPremium(data?.subscription === 'premium' || data?.subscription === 'canceling' || data?.role === 'admin')
         setJoinedAt(data?.joined_at ?? null)
+        setSeed(data?.schedule_seed ?? 0)
         setLoaded(true)
       })
   }, [session])
@@ -366,7 +413,7 @@ export default function Workout() {
       })
   }, [session])
 
-  const idx        = getTodayIndex(joinedAt)
+  const idx        = getTodayIndex(joinedAt, seed)
   const workoutKey = SCHEDULE[idx]
   const workout    = WORKOUTS[workoutKey]
 
