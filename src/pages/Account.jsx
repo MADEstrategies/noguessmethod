@@ -82,11 +82,20 @@ export default function Account() {
         <section className="card hero-copy">
           <h2>Structure over Guesswork.</h2>
           <p className="lead">Your account is the home base for your daily program, courses, and premium tools built for intermediate lifters.</p>
-          <div className="feature-row">
-            <div className="mini"><strong>Daily Workout</strong><span>Your program updates every day. No guessing what to do.</span></div>
-            <div className="mini"><strong>Courses</strong><span>Educational content to sharpen your training knowledge.</span></div>
-            <div className="mini"><strong>Premium</strong><span>Progression rules, form cues, and daily nutrition briefs.</span></div>
-          </div>
+         <div className="feature-row">
+  <Link to="/workout" className="mini">
+    <strong>Daily Workout</strong>
+    <span>Your program updates every day. No guessing what to do.</span>
+  </Link>
+  <Link to="/courses" className="mini">
+    <strong>Courses</strong>
+    <span>Educational content to sharpen your training knowledge.</span>
+  </Link>
+  <Link to={isPremium ? '/account' : '/upgrade'} className="mini">
+    <strong>Premium</strong>
+    <span>Progression rules, form cues, and daily nutrition briefs.</span>
+  </Link>
+</div>
         </section>
       </main>
       <Footer />
