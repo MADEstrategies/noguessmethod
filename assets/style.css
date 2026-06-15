@@ -674,3 +674,13 @@ video.course-video-iframe{
   object-fit:contain;
   background:#000;
 }
+a.mini{
+  display:block;
+  text-decoration:none;
+  cursor:pointer;
+}
+a.mini:hover{
+  border-color:rgba(255,255,255,.22);
+  background:rgba(255,255,255,.06);
+  transform:translateY(-2px);
+}
