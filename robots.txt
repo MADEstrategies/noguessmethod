@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/
+
+Disallow: /account
+Disallow: /settings
+Disallow: /admin
+Disallow: /workout
+Disallow: /workouts
+Disallow: /courses
+Disallow: /library
+Disallow: /store
+Disallow: /macros
+Disallow: /cancel
+Disallow: /success
+Disallow: /checkout
+
+Sitemap: https://noguessmethod.com/sitemap.xml
