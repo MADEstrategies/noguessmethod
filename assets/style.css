@@ -797,3 +797,15 @@ video.course-video-iframe{
   .blog-post-wrap{padding:24px 0 60px}
   .blog-paywall{padding:32px 24px}
 }
+
+/* Blog CTA */
+.blog-cta{
+  border-top:1px solid var(--line);
+  padding-top:32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.blog-cta p{margin:0;color:var(--muted);font-size:15px}
