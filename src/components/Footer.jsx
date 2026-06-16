@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="footer">
       <span>NoGuessMethod</span>
       <span>
-        <Link to="/">Main</Link> · <Link to="/blog">Blog</Link> · <Link to="/upgrade">Pricing</Link> · <Link to="/investors">Investors</Link>
+        <Link to="/">Main</Link> · <Link to="/upgrade">Pricing</Link> · <Link to="/investors">Investors</Link>
       </span>
       <span>© 2026 NoGuessMethod</span>
     </footer>
