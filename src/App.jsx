@@ -5,6 +5,8 @@ import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import PaidRoute from './components/PaidRoute'
 import Home from './pages/Home'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Account from './pages/Account'
@@ -27,11 +29,7 @@ import Library from './pages/userHome/Library'
 
 function GuestRoute({ children }) {
   const { session, loading } = useAuth()
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: 'var(--muted)', fontSize: 14 }}>Loading...</p>
-    </div>
-  )
+  if (loading) return null
   if (session) return <Navigate to="/account" replace />
   return children
 }
@@ -42,6 +40,8 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/"             element={<GuestRoute><Home /></GuestRoute>} />
+        <Route path="/blog"         element={<Blog />} />
+        <Route path="/blog/:slug"   element={<BlogPost />} />
         <Route path="/login"        element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/signup"       element={<GuestRoute><Signup /></GuestRoute>} />
         <Route path="/upgrade"      element={<Upgrade />} />
