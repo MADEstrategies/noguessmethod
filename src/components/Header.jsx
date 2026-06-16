@@ -15,10 +15,10 @@ export default function Header() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-const handleLogout = async () => {
-  await signOut()
-  window.location.href = '/'
-}
+  const handleLogout = async () => {
+    await signOut()
+    window.location.href = '/'
+  }
 
   function navClass(to) {
     const active = path === to || (to !== '/' && path.startsWith(to))
@@ -27,12 +27,14 @@ const handleLogout = async () => {
 
   const navLinks = (
     <>
+      {!session && <Link to="/blog"   className={navClass('/blog')}>Blog</Link>}
       {!session && <Link to="/signup" className={navClass('/signup')}>Sign Up</Link>}
       {!session && <Link to="/login"  className={navClass('/login')}>Login</Link>}
-      {session && <Link to="/workout"  className={navClass('/workout')}>Today's Workout</Link>}
-      {session && <Link to="/courses"  className={navClass('/courses')}>Courses</Link>}
-      {session && <Link to="/macros"   className={navClass('/macros')}>Macros</Link>}
-      {session && <Link to="/account"  className={navClass('/account')}>Member Hub</Link>}
+      {session && <Link to="/workout" className={navClass('/workout')}>Today's Workout</Link>}
+      {session && <Link to="/courses" className={navClass('/courses')}>Courses</Link>}
+      {session && <Link to="/blog"    className={navClass('/blog')}>Blog</Link>}
+      {session && <Link to="/macros"  className={navClass('/macros')}>Macros</Link>}
+      {session && <Link to="/account" className={navClass('/account')}>Member Hub</Link>}
       {session && (
         <button type="button" className="logout-button" onClick={handleLogout}>
           Log Out
