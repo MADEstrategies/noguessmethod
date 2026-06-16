@@ -5,6 +5,8 @@ import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import PaidRoute from './components/PaidRoute'
 import Home from './pages/Home'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Account from './pages/Account'
@@ -26,7 +28,8 @@ import Store from './pages/userHome/Store'
 import Library from './pages/userHome/Library'
 
 function GuestRoute({ children }) {
-  const { session } = useAuth()
+  const { session, loading } = useAuth()
+  if (loading) return null
   if (session) return <Navigate to="/account" replace />
   return children
 }
@@ -36,26 +39,28 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/"          element={<Home />} />
-        <Route path="/login"     element={<GuestRoute><Login /></GuestRoute>} />
-        <Route path="/signup"    element={<GuestRoute><Signup /></GuestRoute>} />
-        <Route path="/upgrade"   element={<Upgrade />} />
-        <Route path="/investors" element={<Investors />} />
-        <Route path="/courses"   element={<ProtectedRoute><Course /></ProtectedRoute>} />
-        <Route path="/courses/:id" element={<ProtectedRoute><CoursePage /></ProtectedRoute>} />
-        <Route path="/workouts"  element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
+        <Route path="/"             element={<GuestRoute><Home /></GuestRoute>} />
+        <Route path="/blog"         element={<Blog />} />
+        <Route path="/blog/:slug"   element={<BlogPost />} />
+        <Route path="/login"        element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path="/signup"       element={<GuestRoute><Signup /></GuestRoute>} />
+        <Route path="/upgrade"      element={<Upgrade />} />
+        <Route path="/investors"    element={<Investors />} />
+        <Route path="/courses"      element={<ProtectedRoute><Course /></ProtectedRoute>} />
+        <Route path="/courses/:id"  element={<ProtectedRoute><CoursePage /></ProtectedRoute>} />
+        <Route path="/workouts"     element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
         <Route path="/workouts/:id" element={<ProtectedRoute><WorkoutPage /></ProtectedRoute>} />
-        <Route path="/store"     element={<ProtectedRoute><Store /></ProtectedRoute>} />
-        <Route path="/library"   element={<ProtectedRoute><Library /></ProtectedRoute>} />
-        <Route path="/account"   element={<ProtectedRoute><Account /></ProtectedRoute>} />
-        <Route path="/workout"   element={<ProtectedRoute><Workout /></ProtectedRoute>} />
-        <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/macros"    element={<ProtectedRoute><Macros /></ProtectedRoute>} />
-        <Route path="/checkout"  element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-        <Route path="/cancel"    element={<ProtectedRoute><Cancel /></ProtectedRoute>} />
-        <Route path="/success"   element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
-        <Route path="/admin"     element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-        <Route path="*"          element={<NotFound />} />
+        <Route path="/store"        element={<ProtectedRoute><Store /></ProtectedRoute>} />
+        <Route path="/library"      element={<ProtectedRoute><Library /></ProtectedRoute>} />
+        <Route path="/account"      element={<ProtectedRoute><Account /></ProtectedRoute>} />
+        <Route path="/workout"      element={<ProtectedRoute><Workout /></ProtectedRoute>} />
+        <Route path="/settings"     element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/macros"       element={<ProtectedRoute><Macros /></ProtectedRoute>} />
+        <Route path="/checkout"     element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/cancel"       element={<ProtectedRoute><Cancel /></ProtectedRoute>} />
+        <Route path="/success"      element={<ProtectedRoute><PaidRoute><Success /></PaidRoute></ProtectedRoute>} />
+        <Route path="/admin"        element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="*"             element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   )
