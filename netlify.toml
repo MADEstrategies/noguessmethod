@@ -5,6 +5,16 @@
   node_bundler = "esbuild"
 [functions."send-reminders"]
   schedule = "0,15,30,45 * * * *"
+  [[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml"
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
+  force = true
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
