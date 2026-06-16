@@ -15,6 +15,11 @@ export default function Blog() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Set meta for blog listing page
+    document.title = 'Training Articles for Intermediate Lifters — NoGuessMethod'
+    const desc = document.querySelector('meta[name="description"]')
+    if (desc) desc.content = 'Evidence-based training articles for intermediate lifters. Programming, progression, recovery, and nutrition — no fluff.'
+
     supabase
       .from('blog_posts')
       .select('id, title, slug, excerpt, tags, created_at')
@@ -24,6 +29,12 @@ export default function Blog() {
         setPosts(data ?? [])
         setLoading(false)
       })
+
+    return () => {
+      document.title = 'NoGuessMethod — Structured Training for Intermediate Lifters'
+      const d = document.querySelector('meta[name="description"]')
+      if (d) d.content = 'Stop guessing your workouts. NoGuessMethod gives intermediate lifters a structured daily program with clear progression rules, form cues, and nutrition guidance.'
+    }
   }, [])
 
   return (
