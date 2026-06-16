@@ -1,24 +1,20 @@
 [build]
-  functions = "netlify/functions"
+  command = "npm run build"
   publish = "dist"
-[functions]
-  node_bundler = "esbuild"
-[functions."send-reminders"]
-  schedule = "0,15,30,45 * * * *"
-  [[headers]]
-  for = "/sitemap.xml"
-  [headers.values]
-    Content-Type = "application/xml"
 
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/sitemap.xml"
-  status = 200
-  force = true
+[functions]
+  "*" = { node_bundler = "esbuild" }
+  send-reminders = { schedule = "0,15,30,45 * * * *" }
+
+[[edge_functions]]
+  path = "/blog/*"
+  function = "blog-meta"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
