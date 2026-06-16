@@ -11,19 +11,37 @@ function fmt(d) {
   return new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
-// Simple markdown-like renderer
+function setMeta(title, description) {
+  document.title = `${title} — NoGuessMethod`
+  let desc = document.querySelector('meta[name="description"]')
+  if (!desc) {
+    desc = document.createElement('meta')
+    desc.name = 'description'
+    document.head.appendChild(desc)
+  }
+  desc.content = description
+
+  // Open Graph
+  const setOG = (prop, val) => {
+    let el = document.querySelector(`meta[property="${prop}"]`)
+    if (!el) {
+      el = document.createElement('meta')
+      el.setAttribute('property', prop)
+      document.head.appendChild(el)
+    }
+    el.content = val
+  }
+  setOG('og:title', `${title} — NoGuessMethod`)
+  setOG('og:description', description)
+  setOG('og:url', window.location.href)
+  setOG('og:type', 'article')
+}
+
 function renderContent(text) {
   return text.split('\n').map((line, i) => {
-    if (line.startsWith('## ')) {
-      return <h2 key={i} className="blog-content-h2">{line.slice(3)}</h2>
-    }
-    if (line.startsWith('# ')) {
-      return <h1 key={i} className="blog-content-h1">{line.slice(2)}</h1>
-    }
-    if (line.trim() === '') {
-      return <br key={i} />
-    }
-    // Handle **bold**
+    if (line.startsWith('## ')) return <h2 key={i} className="blog-content-h2">{line.slice(3)}</h2>
+    if (line.startsWith('# '))  return <h1 key={i} className="blog-content-h1">{line.slice(2)}</h1>
+    if (line.trim() === '')     return <br key={i} />
     const parts = line.split(/(\*\*[^*]+\*\*)/)
     return (
       <p key={i} className="blog-content-p">
@@ -38,20 +56,14 @@ function renderContent(text) {
   })
 }
 
-// Count words and split at ~300 words
 function splitContent(content) {
   const paragraphs = content.split('\n')
   let wordCount = 0
   let splitIndex = paragraphs.length
-
   for (let i = 0; i < paragraphs.length; i++) {
     wordCount += paragraphs[i].split(' ').length
-    if (wordCount >= 300) {
-      splitIndex = i + 1
-      break
-    }
+    if (wordCount >= 300) { splitIndex = i + 1; break }
   }
-
   return {
     preview: paragraphs.slice(0, splitIndex).join('\n'),
     rest:    paragraphs.slice(splitIndex).join('\n'),
@@ -61,8 +73,8 @@ function splitContent(content) {
 export default function BlogPost() {
   const { slug }    = useParams()
   const { session } = useAuth()
-  const [post,    setPost]    = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [post,     setPost]     = useState(null)
+  const [loading,  setLoading]  = useState(true)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
@@ -75,8 +87,16 @@ export default function BlogPost() {
       .then(({ data }) => {
         if (!data) { setNotFound(true); setLoading(false); return }
         setPost(data)
+        setMeta(data.title, data.excerpt)
         setLoading(false)
       })
+
+    // Reset on unmount
+    return () => {
+      document.title = 'NoGuessMethod — Structured Training for Intermediate Lifters'
+      const desc = document.querySelector('meta[name="description"]')
+      if (desc) desc.content = 'Stop guessing your workouts. NoGuessMethod gives intermediate lifters a structured daily program with clear progression rules, form cues, and nutrition guidance.'
+    }
   }, [slug])
 
   if (loading) return (
@@ -145,6 +165,12 @@ export default function BlogPost() {
               {renderContent(rest)}
             </div>
           )}
+
+          {/* Internal links */}
+          <div className="blog-cta">
+            <p>Ready to stop guessing your training?</p>
+            <Link to="/signup" className="btn primary">Start Free — No Credit Card</Link>
+          </div>
 
         </div>
       </main>
