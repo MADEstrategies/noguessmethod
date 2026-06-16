@@ -21,7 +21,6 @@ function setMeta(title, description) {
   }
   desc.content = description
 
-  // Open Graph
   const setOG = (prop, val) => {
     let el = document.querySelector(`meta[property="${prop}"]`)
     if (!el) {
@@ -35,6 +34,46 @@ function setMeta(title, description) {
   setOG('og:description', description)
   setOG('og:url', window.location.href)
   setOG('og:type', 'article')
+}
+
+function setStructuredData(post) {
+  // Remove any existing structured data
+  const existing = document.getElementById('structured-data')
+  if (existing) existing.remove()
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.created_at,
+    dateModified: post.updated_at ?? post.created_at,
+    author: {
+      '@type': 'Organization',
+      name: 'NoGuessMethod',
+      url: 'https://noguessmethod.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'NoGuessMethod',
+      url: 'https://noguessmethod.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://noguessmethod.com/assets/ngm-logo-square.jpeg',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://noguessmethod.com/blog/${post.slug}`,
+    },
+    keywords: (post.tags ?? []).join(', '),
+  }
+
+  const script = document.createElement('script')
+  script.id = 'structured-data'
+  script.type = 'application/ld+json'
+  script.text = JSON.stringify(schema)
+  document.head.appendChild(script)
 }
 
 function renderContent(text) {
@@ -88,6 +127,7 @@ export default function BlogPost() {
         if (!data) { setNotFound(true); setLoading(false); return }
         setPost(data)
         setMeta(data.title, data.excerpt)
+        setStructuredData(data)
         setLoading(false)
       })
 
@@ -96,6 +136,8 @@ export default function BlogPost() {
       document.title = 'NoGuessMethod — Structured Training for Intermediate Lifters'
       const desc = document.querySelector('meta[name="description"]')
       if (desc) desc.content = 'Stop guessing your workouts. NoGuessMethod gives intermediate lifters a structured daily program with clear progression rules, form cues, and nutrition guidance.'
+      const sd = document.getElementById('structured-data')
+      if (sd) sd.remove()
     }
   }, [slug])
 
