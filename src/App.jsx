@@ -7,6 +7,7 @@ import PaidRoute from './components/PaidRoute'
 import Home from './pages/Home'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
+import UpdatePassword from './pages/UpdatePassword'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Account from './pages/Account'
@@ -42,6 +43,7 @@ function AnimatedRoutes() {
         <Route path="/"             element={<GuestRoute><Home /></GuestRoute>} />
         <Route path="/blog"         element={<Blog />} />
         <Route path="/blog/:slug"   element={<BlogPost />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/login"        element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/signup"       element={<GuestRoute><Signup /></GuestRoute>} />
         <Route path="/upgrade"      element={<Upgrade />} />
