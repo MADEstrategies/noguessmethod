@@ -25,7 +25,6 @@ import Course from './pages/userHome/Courses'
 import CoursePage from './pages/userHome/CoursePage'
 import Workouts from './pages/userHome/Workouts'
 import WorkoutPage from './pages/userHome/WorkoutPage'
-import Store from './pages/userHome/Store'
 import Library from './pages/userHome/Library'
 
 function GuestRoute({ children }) {
@@ -52,7 +51,6 @@ function AnimatedRoutes() {
         <Route path="/courses/:id"  element={<ProtectedRoute><CoursePage /></ProtectedRoute>} />
         <Route path="/workouts"     element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
         <Route path="/workouts/:id" element={<ProtectedRoute><WorkoutPage /></ProtectedRoute>} />
-        <Route path="/store"        element={<ProtectedRoute><Store /></ProtectedRoute>} />
         <Route path="/library"      element={<ProtectedRoute><Library /></ProtectedRoute>} />
         <Route path="/account"      element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="/workout"      element={<ProtectedRoute><Workout /></ProtectedRoute>} />
