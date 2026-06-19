@@ -304,28 +304,29 @@ function NutritionCard({ workout, isPremium }) {
 
 // ── Deload Detection ──────────────────────────────────────────────────────────
 
-async function checkDeload(userId, workout) {
+async function checkDeload(userId, workoutKey, workout) {
   try {
+    if (!workoutKey) return false
+
     // Get last 2 workout logs for this workout key
     const { data: logs } = await supabase
       .from('workout_logs')
       .select('id')
       .eq('user_id', userId)
-      .eq('workout_key', workout.key ?? '')
+      .eq('workout_key', workoutKey)
       .order('logged_at', { ascending: false })
       .limit(2)
 
     if (!logs || logs.length < 2) return false
 
-    const primaryExercises = workout.exercises.slice(0, 2) // check first 2 exercises
+    const primaryExercises = workout.exercises.slice(0, 2)
 
     let failCount = 0
 
     for (const ex of primaryExercises) {
-      // Parse target reps (e.g. "8-10" -> min 8)
-      const targetReps = parseInt(ex.reps.toString().split('-')[0])
+      const targetReps = parseInt(ex.reps.toString().split('–')[0].split('-')[0])
+      if (!targetReps || isNaN(targetReps)) continue
 
-      // Get set logs for this exercise across last 2 sessions
       const { data: setData } = await supabase
         .from('set_logs')
         .select('reps, workout_log_id')
@@ -334,14 +335,12 @@ async function checkDeload(userId, workout) {
 
       if (!setData || setData.length === 0) continue
 
-      // Group by session
       const bySession = {}
       setData.forEach(s => {
         if (!bySession[s.workout_log_id]) bySession[s.workout_log_id] = []
         bySession[s.workout_log_id].push(s.reps)
       })
 
-      // Check if both sessions missed target on at least one set
       const sessions = Object.values(bySession)
       if (sessions.length < 2) continue
 
@@ -420,7 +419,7 @@ export default function Workout() {
   // Check deload after component loads
   useEffect(() => {
     if (!session || !loaded || !workout) return
-    checkDeload(session.user.id, { ...workout, key: workoutKey }).then(setNeedsDeload)
+    checkDeload(session.user.id, workoutKey, workout).then(setNeedsDeload)
   }, [session, loaded, workoutKey])
 
   async function handleLogged(loggedSets) {
@@ -437,7 +436,7 @@ export default function Workout() {
     if (data && data.length > 0) setNewPRs(data)
 
     // Re-check deload after logging
-    const deload = await checkDeload(session.user.id, { ...workout, key: workoutKey })
+    const deload = await checkDeload(session.user.id, workoutKey, workout)
     setNeedsDeload(deload)
   }
 
