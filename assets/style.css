@@ -809,3 +809,14 @@ video.course-video-iframe{
   flex-wrap:wrap;
 }
 .blog-cta p{margin:0;color:var(--muted);font-size:15px}
+/* Clickable mini cards */
+a.mini{
+  display:block;
+  text-decoration:none;
+  cursor:pointer;
+}
+a.mini:hover{
+  border-color:rgba(255,255,255,.22);
+  background:rgba(255,255,255,.06);
+  transform:translateY(-2px);
+}
