@@ -6,7 +6,6 @@ import Footer from '../../components/Footer'
 const NAV_ITEMS = [
   { to: '/workouts', label: 'Workouts' },
   { to: '/courses',  label: 'Courses' },
-  { to: '/store',    label: 'Store' },
   { to: '/library',  label: 'Library' },
 ]
 
