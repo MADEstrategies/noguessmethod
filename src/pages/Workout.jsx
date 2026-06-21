@@ -5,7 +5,7 @@ import Footer from '../components/Footer'
 import PageTransition from '../components/PageTransition'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { WORKOUTS, SCHEDULE, getTodayIndex, getWeekLabel } from '../data/workouts'
+import { getWorkouts, getTodayIndex, getWeekLabel } from '../data/workouts'
 
 function getLocalDateString() {
   const d = new Date()
@@ -364,6 +364,7 @@ export default function Workout() {
   const [isPremium,    setIsPremium]    = useState(false)
   const [joinedAt,     setJoinedAt]     = useState(null)
   const [seed,         setSeed]         = useState(0)
+  const [fitnessLevel, setFitnessLevel] = useState('Intermediate')
   const [loaded,       setLoaded]       = useState(false)
   const [showModal,    setShowModal]    = useState(false)
   const [newPRs,       setNewPRs]       = useState([])
@@ -375,13 +376,14 @@ export default function Workout() {
     if (!session) return
     supabase
       .from('profiles')
-      .select('role, subscription, joined_at, schedule_seed')
+      .select('role, subscription, joined_at, schedule_seed, fitness_level')
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => {
         setIsPremium(data?.subscription === 'premium' || data?.subscription === 'canceling' || data?.role === 'admin')
         setJoinedAt(data?.joined_at ?? null)
         setSeed(data?.schedule_seed ?? 0)
+        setFitnessLevel(data?.fitness_level ?? 'Intermediate')
         setLoaded(true)
       })
   }, [session])
@@ -412,7 +414,8 @@ export default function Workout() {
       })
   }, [session])
 
-  const idx        = getTodayIndex(joinedAt, seed)
+  const { workouts: WORKOUTS, schedule: SCHEDULE } = getWorkouts(fitnessLevel)
+  const idx        = getTodayIndex(joinedAt, seed, fitnessLevel)
   const workoutKey = SCHEDULE[idx]
   const workout    = WORKOUTS[workoutKey]
 
@@ -420,7 +423,7 @@ export default function Workout() {
   useEffect(() => {
     if (!session || !loaded || !workout) return
     checkDeload(session.user.id, workoutKey, workout).then(setNeedsDeload)
-  }, [session, loaded, workoutKey])
+  }, [session, loaded, workoutKey, fitnessLevel])
 
   async function handleLogged(loggedSets) {
     setLoggedToday(true)
