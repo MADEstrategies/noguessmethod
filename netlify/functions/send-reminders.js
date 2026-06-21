@@ -12,7 +12,7 @@ const WORKOUT_INFO = {
   'recovery': { label: 'Active Recovery',     focus: 'Cardio · Mobility · Blood Flow' },
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getTodayIndex(joinedAt, seed = 0) {
   const SCHEDULE_LENGTH = 30
@@ -30,8 +30,6 @@ function getTodayIndex(joinedAt, seed = 0) {
   return (dayIndex + seed) % SCHEDULE_LENGTH
 }
 
-// Convert stored UTC HH:MM to the user's local time, then check if it matches now.
-// The stored time is already in UTC so we just compare directly to current UTC.
 function getCurrentUTCTime() {
   const now = new Date();
   return `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}`;
@@ -41,14 +39,34 @@ function getCurrentUTCTime() {
 
 function buildEmailHTML(username, label, focus, siteUrl) {
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="dark"/>
+<meta name="supported-color-schemes" content="dark"/>
 <title>Today's Program — NGM</title>
+<style>
+  :root { color-scheme: dark; }
+  body, .body-bg { background:#0a0a0a !important; }
+  .card-bg { background:#141414 !important; border:1px solid #222222 !important; }
+  .text-muted { color:#888888 !important; }
+  .text-white { color:#ffffff !important; }
+  .pill-bg { background:#1a1a1a !important; border-color:#2a2a2a !important; color:#888888 !important; }
+  .footer-text { color:#444444 !important; }
+  .footer-link { color:#666666 !important; }
+  @media (prefers-color-scheme: dark) {
+    body, .body-bg { background:#0a0a0a !important; }
+    .card-bg { background:#141414 !important; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:40px 16px;">
+<body class="body-bg" style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;">Today's program: ${label} — NoGuessMethod</div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" class="body-bg" style="background:#0a0a0a;padding:40px 16px;">
     <tr>
       <td align="center">
         <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
@@ -56,44 +74,44 @@ function buildEmailHTML(username, label, focus, siteUrl) {
           <!-- Logo -->
           <tr>
             <td style="padding:0 0 24px;">
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="background:#ffffff;border-radius:14px;width:46px;height:46px;text-align:center;vertical-align:middle;">
-                    <span style="font-size:13px;font-weight:900;letter-spacing:.08em;color:#0a0a0a;line-height:46px;display:block;">NGM</span>
-                  </td>
-                </tr>
-              </table>
+              <img
+                src="${siteUrl}/assets/ngm-logo-square.jpeg"
+                alt="NGM"
+                width="46"
+                height="46"
+                style="display:block;border-radius:14px;width:46px;height:46px;object-fit:cover;border:0;"
+              />
             </td>
           </tr>
 
           <!-- Main card -->
           <tr>
-            <td style="background:#141414;border:1px solid #222222;border-radius:24px;padding:40px;">
+            <td class="card-bg" style="background:#141414;border:1px solid #222222;border-radius:24px;padding:40px;">
 
               <!-- Eyebrow -->
-              <p style="margin:0 0 22px;font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#666666;">
+              <p class="text-muted" style="margin:0 0 22px;font-size:11px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#666666;">
                 <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffffff;margin-right:10px;vertical-align:middle;"></span>
                 Today's Program
               </p>
 
               <!-- Workout title -->
-              <h1 style="margin:0;font-size:42px;font-weight:900;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;color:#ffffff;">
+              <h1 class="text-white" style="margin:0;font-size:42px;font-weight:900;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;color:#ffffff;">
                 ${label.toUpperCase()}
               </h1>
 
               <!-- Focus pill -->
-              <div style="margin:18px 0 0;display:inline-block;border:1px solid #2a2a2a;background:#1a1a1a;border-radius:999px;padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:#888888;">
+              <div class="pill-bg" style="margin:18px 0 0;display:inline-block;border:1px solid #2a2a2a;background:#1a1a1a;border-radius:999px;padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:#888888;">
                 ${focus}
               </div>
 
               <hr style="border:0;border-top:1px solid #222222;margin:30px 0;"/>
 
               <!-- Body text -->
-              <p style="margin:0 0 30px;font-size:16px;color:#888888;line-height:1.65;">
+              <p class="text-muted" style="margin:0 0 30px;font-size:16px;color:#888888;line-height:1.65;">
                 Hey ${username} — your program is ready.<br/>Stop guessing, start progressing.
               </p>
 
-              <!-- CTA button -->
+              <!-- CTA -->
               <a href="${siteUrl}/workout" style="display:inline-block;background:#ffffff;color:#0a0a0a;font-size:14px;font-weight:700;padding:15px 30px;border-radius:999px;text-decoration:none;letter-spacing:.02em;">
                 View Today's Workout →
               </a>
@@ -104,9 +122,9 @@ function buildEmailHTML(username, label, focus, siteUrl) {
           <!-- Footer -->
           <tr>
             <td style="padding:24px 0 0;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#444444;line-height:1.6;">
+              <p class="footer-text" style="margin:0;font-size:12px;color:#444444;line-height:1.6;">
                 You're receiving this because you enabled workout reminders.<br/>
-                <a href="${siteUrl}/settings" style="color:#666666;text-decoration:underline;">Manage reminder settings</a>
+                <a href="${siteUrl}/settings" class="footer-link" style="color:#666666;text-decoration:underline;">Manage reminder settings</a>
               </p>
             </td>
           </tr>
@@ -150,7 +168,7 @@ async function sendSMS({ to, username, label, focus, siteUrl, accountSid, authTo
   }
 }
 
-// ── Email sender ───────────────────────────────────────────────────────────────
+// ── Email sender ──────────────────────────────────────────────────────────────
 
 async function sendEmail({ to, username, label, focus, siteUrl, resendKey }) {
   const res = await fetch('https://api.resend.com/emails', {
@@ -186,7 +204,6 @@ exports.handler = async () => {
   const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
   const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
-  // Current UTC time as HH:MM
   const currentUTC = getCurrentUTCTime();
   console.log(`Running reminders at UTC: ${currentUTC}`);
 
@@ -209,9 +226,7 @@ exports.handler = async () => {
   const results = { email: { sent: 0, failed: 0 }, sms: { sent: 0, failed: 0 } };
 
   await Promise.allSettled(users.map(async (user) => {
-    // reminder_time is already stored in UTC — compare directly to current UTC
-    const storedUTC = (user.reminder_time ?? '').slice(0, 5); // HH:MM
-
+    const storedUTC = (user.reminder_time ?? '').slice(0, 5);
     const [uh, um] = storedUTC.split(':').map(Number);
     const [ch, cm] = currentUTC.split(':').map(Number);
     const userMins = uh * 60 + um;
@@ -219,7 +234,6 @@ exports.handler = async () => {
 
     console.log(`User ${user.username}: stored UTC=${storedUTC}, current UTC=${currentUTC}, diff=${Math.abs(userMins - currMins)}min`);
 
-    // Match within a 7-minute window to account for scheduler drift
     if (Math.abs(userMins - currMins) > 7) return;
 
     const idx     = getTodayIndex(user.joined_at, user.schedule_seed ?? 0);
