@@ -83,7 +83,19 @@ export default function Account() {
           <h2>Structure over Guesswork.</h2>
           <p className="lead">Your account is the home base for your daily program, courses, and premium tools built for intermediate lifters.</p>
          <div className="feature-row">
-</div>
+<div style={{ display: 'grid', gap: 10, marginTop: 28 }}>
+  <Link to="/workout" className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+    <strong style={{ flexShrink: 0, width: 130 }}>Daily Workout</strong>
+    <span>Your program updates every day. No guessing what to do.</span>
+  </Link>
+  <Link to="/courses" className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+    <strong style={{ flexShrink: 0, width: 130 }}>Courses</strong>
+    <span>Educational content to sharpen your training knowledge.</span>
+  </Link>
+  <Link to={isPremium ? '/account' : '/upgrade'} className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+    <strong style={{ flexShrink: 0, width: 130 }}>Premium</strong>
+    <span>Progression rules, form cues, and daily nutrition briefs.</span>
+  </Link>
 </div>
         </section>
       </main>
