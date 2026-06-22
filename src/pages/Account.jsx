@@ -104,7 +104,7 @@ export default function Account() {
               <strong style={strongStyle}>Courses</strong>
               <span>Educational content to sharpen your training knowledge.</span>
             </Link>
-            <Link to={isPremium ? '/account' : '/upgrade'} className="mini" style={miniStyle}>
+         <Link to={isPremium ? '/workout' : '/upgrade'} className="mini" style={miniStyle}>
               <strong style={strongStyle}>Premium</strong>
               <span>Progression rules, form cues, and daily nutrition briefs.</span>
             </Link>
