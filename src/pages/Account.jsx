@@ -37,6 +37,19 @@ export default function Account() {
     }
   }
 
+  const miniStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  }
+
+  const strongStyle = {
+    flexShrink: 0,
+    width: 120,
+    marginBottom: 0,
+  }
+
   return (
     <PageTransition>
       <Header />
@@ -82,21 +95,20 @@ export default function Account() {
         <section className="card hero-copy">
           <h2>Structure over Guesswork.</h2>
           <p className="lead">Your account is the home base for your daily program, courses, and premium tools built for intermediate lifters.</p>
-         <div className="feature-row">
-<div style={{ display: 'grid', gap: 10, marginTop: 28 }}>
-  <Link to="/workout" className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-    <strong style={{ flexShrink: 0, width: 130 }}>Daily Workout</strong>
-    <span>Your program updates every day. No guessing what to do.</span>
-  </Link>
-  <Link to="/courses" className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-    <strong style={{ flexShrink: 0, width: 130 }}>Courses</strong>
-    <span>Educational content to sharpen your training knowledge.</span>
-  </Link>
-  <Link to={isPremium ? '/account' : '/upgrade'} className="mini" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-    <strong style={{ flexShrink: 0, width: 130 }}>Premium</strong>
-    <span>Progression rules, form cues, and daily nutrition briefs.</span>
-  </Link>
-</div>
+          <div style={{ display: 'grid', gap: 10, marginTop: 28 }}>
+            <Link to="/workout" className="mini" style={miniStyle}>
+              <strong style={strongStyle}>Daily Workout</strong>
+              <span>Your program updates every day. No guessing what to do.</span>
+            </Link>
+            <Link to="/courses" className="mini" style={miniStyle}>
+              <strong style={strongStyle}>Courses</strong>
+              <span>Educational content to sharpen your training knowledge.</span>
+            </Link>
+            <Link to={isPremium ? '/account' : '/upgrade'} className="mini" style={miniStyle}>
+              <strong style={strongStyle}>Premium</strong>
+              <span>Progression rules, form cues, and daily nutrition briefs.</span>
+            </Link>
+          </div>
         </section>
       </main>
       <Footer />
