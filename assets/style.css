@@ -826,9 +826,23 @@ a.mini:hover{
   background:rgba(255,255,255,.06);
   transform:translateY(-2px);
 
-  @media(max-width:860px){
+@media(max-width:860px){
   .feature-row{
-    grid-template-columns: 1fr;
+    grid-template-columns:1fr !important;
   }
-}
+  .mini{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    gap:14px;
+    min-height:0;
+  }
+  .mini strong{
+    flex-shrink:0;
+    width:110px;
+    margin-bottom:0;
+  }
+  .mini span{
+    flex:1;
+  }
 }
