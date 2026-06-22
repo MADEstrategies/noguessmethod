@@ -111,6 +111,12 @@ button:disabled{opacity:.4;cursor:default;transform:none!important}
 }
 .mobile-nav-links a.primary{background:#fff;color:#000;border-color:#fff}
 
+.mobile-nav-links a,
+.mobile-nav-links button {
+  width: 220px !important;
+  max-width: 220px !important;
+  justify-content: center;
+}
 /* ── Layout ── */
 .wrap{width:min(1160px, calc(100% - 32px));margin:0 auto}
 
