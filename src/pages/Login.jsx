@@ -20,7 +20,20 @@ export default function Login() {
     setLoading(true)
     setStatus('')
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      let loginEmail = email.trim()
+
+      // If input doesn't look like an email, treat it as a username
+      if (!loginEmail.includes('@')) {
+        const { data: foundEmail, error: rpcError } = await supabase
+          .rpc('get_email_by_username', { p_username: loginEmail })
+
+        if (rpcError || !foundEmail) {
+          throw new Error('No account found with that username.')
+        }
+        loginEmail = foundEmail
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password })
       if (error) throw error
       navigate('/account')
     } catch (err) {
@@ -69,8 +82,8 @@ export default function Login() {
 
                 <form className="form" style={{ marginTop: 24 }} onSubmit={handleSubmit}>
                   <label>
-                    Email
-                    <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@example.com" required />
+                    Email or Username
+                    <input value={email} onChange={e => setEmail(e.target.value)} type="text" placeholder="you@example.com or username" required />
                   </label>
                   <label>
                     Password
