@@ -148,8 +148,13 @@ p{color:var(--muted);line-height:1.6}
 .mini:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.04);transform:translateY(-2px)}
 .mini strong{display:block;margin-bottom:7px}
 .mini span{display:block;color:var(--muted);font-size:13px;line-height:1.45}
-a.mini{display:block;text-decoration:none;cursor:pointer;}
+a.mini{display:flex;flex-direction:column;text-decoration:none;cursor:pointer;}
 a.mini:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.06);transform:translateY(-2px);}
+@media(max-width:860px){
+  a.mini{flex-direction:row;align-items:flex-start;gap:14px}
+  a.mini strong{flex-shrink:0;width:110px;margin-bottom:0}
+  a.mini span{flex:1}
+}
 
 /* ── Forms ── */
 .form-card{width:min(740px, calc(100% - 32px));margin:34px auto 80px;padding:32px}
@@ -584,9 +589,6 @@ option{background:#111;color:#fff}
   .hero-copy,.auth-panel,.form-card{padding:24px}
   .logo-stage{min-height:260px}
   .feature-row{grid-template-columns:1fr!important}
-  .mini{display:flex;flex-direction:row;align-items:flex-start;gap:14px;min-height:0}
-  .mini strong{flex-shrink:0;width:110px;margin-bottom:0}
-  .mini span{flex:1}
   .how-steps{grid-template-columns:1fr}
   .tier-compare{grid-template-columns:1fr;max-width:100%}
   .pricing-grid{grid-template-columns:1fr}
