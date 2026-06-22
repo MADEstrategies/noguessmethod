@@ -825,4 +825,10 @@ a.mini:hover{
   border-color:rgba(255,255,255,.22);
   background:rgba(255,255,255,.06);
   transform:translateY(-2px);
+
+  @media(max-width:860px){
+  .feature-row{
+    grid-template-columns: 1fr;
+  }
+}
 }
