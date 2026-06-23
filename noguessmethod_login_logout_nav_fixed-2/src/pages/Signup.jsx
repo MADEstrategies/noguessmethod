@@ -207,6 +207,22 @@ export default function Signup() {
         setError('Password must be at least 8 characters.'); return
       }
     }
+    if (step === 1) {
+      if (!gender) {
+        setError('Please select your gender.'); return
+      }
+      if (!age || parseInt(age) < 13 || parseInt(age) > 100) {
+        setError('Please enter a valid age (13–100).'); return
+      }
+      if (!level) {
+        setError('Please select your experience level.'); return
+      }
+    }
+    if (step === 2) {
+      if (!goal) {
+        setError('Please select a goal.'); return
+      }
+    }
     setDirection(1)
     setStep(s => s + 1)
   }
