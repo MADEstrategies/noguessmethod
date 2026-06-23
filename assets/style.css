@@ -612,6 +612,10 @@ option{background:#111;color:#fff}
   .form-row-2{grid-template-columns:1fr}
   .signup-progress{gap:0}
   .signup-step-label{display:none}
+  .goal-grid{grid-template-columns:1fr 1fr}
+  .signup-panel{padding:24px}
+  .signup-actions{flex-wrap:wrap}
+  .signup-cta{min-width:0}
   .blog-post-wrap{padding:24px 0 60px}
   .blog-paywall{padding:32px 24px}
   .course-layout{grid-template-columns:1fr}
@@ -622,6 +626,10 @@ option{background:#111;color:#fff}
   .card{border-radius:20px}
   .hero-copy{padding:20px}
   .auth-panel{padding:24px 20px}
+  .signup-panel{padding:20px}
+  .goal-grid{grid-template-columns:1fr}
+  .chip-group{gap:6px}
+  .chip{padding:7px 12px;font-size:12px}
   h1{font-size:clamp(40px, 12vw, 72px)}
   h2{font-size:clamp(28px, 9vw, 52px)}
   .stats-bar{grid-template-columns:1fr 1fr}

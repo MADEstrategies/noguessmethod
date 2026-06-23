@@ -215,14 +215,15 @@ function advance() {
       setError('Please select your experience level.'); return
     }
   }
+  if (step === 2) {
+    if (!goal) {
+      setError('Please select a goal.'); return
+    }
+  }
   setDirection(1)
   setStep(s => s + 1)
 }
-  if (step === 2) {
-  if (!goal) {
-    setError('Please select a goal.'); return
-  }
-}
+
   function back() {
     setError('')
     setDirection(-1)
