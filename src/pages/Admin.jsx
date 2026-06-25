@@ -383,15 +383,15 @@ export default function Admin() {
                     <tbody>
                       {posts.map(p => (
                         <tr key={p.id}>
-                          <td style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</td>
-                          <td style={{ fontSize: 12, color: 'var(--soft)' }}>{p.slug}</td>
+                          <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</td>
+                          <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: 'var(--soft)' }}>{p.slug}</td>
                           <td>
                             <span className={`badge ${p.published ? 'badge-premium' : 'badge-free'}`}>
                               {p.published ? 'Published' : 'Draft'}
                             </span>
                           </td>
                           <td style={{ whiteSpace: 'nowrap' }}>{fmt(p.created_at)}</td>
-                          <td style={{ display: 'flex', gap: 8 }}>
+                          <td style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                             <button className="tbl-btn" onClick={async () => {
                               const { data } = await supabase.from('blog_posts').select('*').eq('id', p.id).single()
                               setEditingPost(data)
