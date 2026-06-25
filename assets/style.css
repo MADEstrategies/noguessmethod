@@ -251,7 +251,7 @@ option{background:#111;color:#fff}
 
 /* ── Admin ── */
 .admin-wrap{width:min(1160px, calc(100% - 32px));margin:34px auto 82px;display:grid;gap:18px}
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stats-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
 .stat-card{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:20px;padding:22px;display:grid;gap:6px;transition:border-color 0.18s ease,transform 0.18s var(--ease-out-expo)}
 .stat-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 .stat-num{font-size:38px;font-weight:900;letter-spacing:-.05em;line-height:1}
@@ -595,7 +595,7 @@ option{background:#111;color:#fff}
   .exercise-grid{grid-template-columns:1fr}
   .settings-wrap{grid-template-columns:1fr}
   .summary-card{position:static}
-  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .stats-bar{grid-template-columns:repeat(3,1fr)}
   .admin-section{overflow-x:auto}
   .uhome-wrap{grid-template-columns:1fr}
   .uhome-sidebar{position:static}
@@ -612,10 +612,6 @@ option{background:#111;color:#fff}
   .form-row-2{grid-template-columns:1fr}
   .signup-progress{gap:0}
   .signup-step-label{display:none}
-  .goal-grid{grid-template-columns:1fr 1fr}
-  .signup-panel{padding:24px}
-  .signup-actions{flex-wrap:wrap}
-  .signup-cta{min-width:0}
   .blog-post-wrap{padding:24px 0 60px}
   .blog-paywall{padding:32px 24px}
   .course-layout{grid-template-columns:1fr}
@@ -626,13 +622,9 @@ option{background:#111;color:#fff}
   .card{border-radius:20px}
   .hero-copy{padding:20px}
   .auth-panel{padding:24px 20px}
-  .signup-panel{padding:20px}
-  .goal-grid{grid-template-columns:1fr}
-  .chip-group{gap:6px}
-  .chip{padding:7px 12px;font-size:12px}
   h1{font-size:clamp(40px, 12vw, 72px)}
   h2{font-size:clamp(28px, 9vw, 52px)}
-  .stats-bar{grid-template-columns:1fr 1fr}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
   .footer{flex-direction:column;gap:10px;text-align:center}
   .footer span:nth-child(2){display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
   .modal-header{padding:20px 20px 16px}
@@ -709,12 +701,3 @@ video.course-video-iframe{width:100%;height:100%;object-fit:contain;background:#
 .blog-paywall p{margin:0 auto;color:var(--muted);font-size:15px;max-width:460px;line-height:1.6}
 .blog-cta{border-top:1px solid var(--line);padding-top:32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .blog-cta p{margin:0;color:var(--muted);font-size:15px}
-
-.feature-row .mini{
-  min-height:120px;
-  justify-content:space-between;
-}
-.feature-row a.mini strong{
-  font-size:14px;
-  margin-bottom:6px;
-}
