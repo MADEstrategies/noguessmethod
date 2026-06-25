@@ -87,6 +87,7 @@ export default function Account() {
             {!isPremium && <Link className="btn" to="/upgrade">Upgrade — $19.99/mo</Link>}
             {isPremium && <Link className="btn" to="/cancel">Subscription</Link>}
             <Link className="btn" to="/settings">Settings</Link>
+            {profile?.role === 'admin' && <Link className="btn" to="/admin">Admin</Link>}
             <button type="button" className="logout-button" onClick={async () => { await signOut(); window.location.href = '/' }}>Log Out</button>
           </div>
           {portalStatus && <p style={{ marginTop: 10, fontSize: 13, color: 'var(--muted)' }}>{portalStatus}</p>}
@@ -104,7 +105,7 @@ export default function Account() {
               <strong style={strongStyle}>Courses</strong>
               <span>Educational content to sharpen your training knowledge.</span>
             </Link>
-         <Link to={isPremium ? '/workout' : '/upgrade'} className="mini" style={miniStyle}>
+            <Link to={isPremium ? '/account' : '/upgrade'} className="mini" style={miniStyle}>
               <strong style={strongStyle}>Premium</strong>
               <span>Progression rules, form cues, and daily nutrition briefs.</span>
             </Link>
